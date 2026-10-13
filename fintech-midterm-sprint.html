@@ -1,0 +1,418 @@
+<title>FinTech Midterm Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: single centered column (max 640px), one question per screen, answer feedback inline under the options */
+:root{
+  --bg:#f5f6f8; --surface:#ffffff; --fg:#161a20; --muted:#5d6672; --line:#dde1e7;
+  --accent:#1f4e79; --accent-soft:#e6eef6;
+  --ok:#1d6b45; --ok-soft:#e5f2ea; --bad:#a3302a; --bad-soft:#f8e8e6;
+  --display:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12151a; --surface:#1a1e25; --fg:#e8ebef; --muted:#9aa3ae; --line:#2b313a;
+  --accent:#8db8e0; --accent-soft:#1f2c3a;
+  --ok:#6cc495; --ok-soft:#173027; --bad:#ef8f86; --bad-soft:#3a1e1c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12151a; --surface:#1a1e25; --fg:#e8ebef; --muted:#9aa3ae; --line:#2b313a;
+  --accent:#8db8e0; --accent-soft:#1f2c3a;
+  --ok:#6cc495; --ok-soft:#173027; --bad:#ef8f86; --bad-soft:#3a1e1c; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--body);font-size:17px;line-height:1.5;padding-inline:16px;padding-block:24px 48px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1,h2{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:2rem;line-height:1.15}
+h2{font-size:1.5rem;line-height:1.2}
+p{margin:0}
+.label{font-family:var(--mono);font-size:.8rem;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:var(--radius);padding:14px 20px;font-weight:700;background:var(--accent);color:var(--bg);min-height:48px}
+.btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .btn{flex:1 1 180px}
+
+/* home */
+.intro{display:flex;flex-direction:column;gap:12px}
+.rounds{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.round{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:center;padding:16px;border-top:1px solid var(--line);text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%}
+.round:first-child{border-top:0}
+.round:hover{background:var(--accent-soft)}
+.round .rn{font-family:var(--mono);font-size:.85rem;font-weight:600;color:var(--muted);grid-row:span 2}
+.round .rt{font-weight:700;min-width:0}
+.round .rs{font-size:.9rem;color:var(--muted);min-width:0}
+.round .rscore{font-family:var(--mono);font-size:.85rem;grid-row:span 2;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-family:var(--mono);font-size:.75rem}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.pill.todo{background:var(--accent-soft);color:var(--accent)}
+
+/* quiz */
+.top{display:flex;flex-direction:column;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px;z-index:2}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.link{background:none;border:0;color:var(--accent);padding:6px 0;font-size:.9rem}
+.bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s ease}
+.qcard{display:flex;flex-direction:column;gap:18px}
+.kind{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent)}
+.qtext{font-size:1.2rem;line-height:1.45;font-weight:600}
+.case{padding:12px 14px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;font-weight:400}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{font-weight:500;display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px 16px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);min-height:52px;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt .k{font-family:var(--mono);font-size:.8rem;color:var(--muted);padding-top:3px;min-width:1ch}
+.opt span:last-child{min-width:0}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.dim{opacity:.55}
+.feedback{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.feedback .verdict{font-weight:700}
+.feedback.ok .verdict{color:var(--ok)}
+.feedback.bad .verdict{color:var(--bad)}
+.hint{font-size:.8rem;color:var(--muted);text-align:center}
+
+/* results */
+.score{font-family:var(--display);font-weight:800;font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.table{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.trow{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.trow:first-child{border-top:0}
+.trow span:first-child{min-width:0}
+.review{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.review li{padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.review b{display:block}
+.review small{color:var(--muted);font-size:.9rem}
+.clear{padding:14px 16px;border-radius:var(--radius);background:var(--ok-soft);color:var(--ok)}
+
+@media (max-width:420px){h1{font-size:1.7rem}.qtext{font-size:1.1rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap" id="app"></div>
+
+<script>
+const ROUNDS = [
+  {n:1, title:"Data, ML and market power", sub:"Prof. Murti"},
+  {n:2, title:"Innovation, incumbents and money", sub:"Prof. DeRose"},
+  {n:3, title:"Venture capital and payments", sub:"Prof. DeRose"},
+  {n:4, title:"Digital economics, privacy and AI", sub:"Prof. Murti"}
+];
+
+/* kind: concept | case | tf ; a = index of correct option */
+const Q = [
+  // Round 1
+  {r:1,kind:"concept",topic:"Overfitting",
+   q:"A credit model predicts last year's defaults almost perfectly but performs poorly on this year's applicants. What is happening?",
+   o:["Underfitting","Overfitting","Feature engineering","Reinforcement learning"],a:1,
+   ex:"The model memorized the training data instead of learning the pattern. The fix is to test on held-out data the model never saw."},
+  {r:1,kind:"case",topic:"Types of machine learning",
+   case:"A bank trains a model on 100 past loans, each labeled \"repaid\" or \"written off\", to predict whether a new applicant will repay.",
+   q:"Which type of learning is this?",
+   o:["Supervised","Unsupervised","Reinforcement","Falsification"],a:0,
+   ex:"It learns from labeled examples. Unsupervised learning finds groups without labels; reinforcement learning learns from rewards, like a trading bot chasing profit."},
+  {r:1,kind:"concept",topic:"CIA: integrity",
+   q:"You send a WhatsApp message and your mom receives a different message. Which information-security goal failed?",
+   o:["Confidentiality","Integrity","Authentication","Availability"],a:1,
+   ex:"Integrity means the data was not tampered with. Confidentiality keeps it secret; authentication confirms who the parties are."},
+  {r:1,kind:"concept",topic:"Certificate authorities",
+   q:"How does your browser know the public key on a bank's website really belongs to that bank?",
+   o:["The bank emails you its key","A certificate authority vouches for it","Symmetric encryption proves it","The URL contains the key"],a:1,
+   ex:"Certificate authorities map a public key to an identity (the padlock icon). It is an institutional, trust-based solution, not a purely technical one."},
+  {r:1,kind:"concept",topic:"Market power",
+   q:"What is the economic definition of market power?",
+   o:["Having the largest market share","The ability to price above marginal cost","Earning any profit at all","Owning a patent"],a:1,
+   ex:"Under perfect competition price equals marginal cost. Pricing above it means market power, which economists dislike and businesses call competitive advantage."},
+  {r:1,kind:"case",topic:"Switching costs from data",
+   case:"A student stays on Apple Music because 15 years of playlists live there, even though they prefer Spotify's app.",
+   q:"Which source of market power is this?",
+   o:["Barrier to entry","Switching costs","Product differentiation","Perfect competition"],a:1,
+   ex:"Data stored in a proprietary format makes leaving costly. Companies could make it portable but choose not to."},
+  {r:1,kind:"case",topic:"Copying insights",
+   case:"McDonald's spent heavily on research to find the best store locations. Wendy's simply opened across the street.",
+   q:"What does this illustrate?",
+   o:["Network effects","First-mover advantage","Copying a rival's insights instead of its data","Third-party cookies"],a:2,
+   ex:"You don't need a competitor's data if you can observe its decisions. Instagram Reels copying TikTok is the modern version."},
+  {r:1,kind:"case",topic:"Price discrimination",
+   case:"Amazon sells the same item with same-day, next-day, or slower delivery at different prices. A rider who takes Uber every workday gets fewer promo codes than an occasional rider.",
+   q:"What do both examples have in common?",
+   o:["Both reward loyal customers","Both use data to charge by willingness to pay","Both are illegal under privacy law","Both are perfect competition"],a:1,
+   ex:"Amazon uses a product menu so customers self-select (second-degree price discrimination). Uber knows the daily rider will pay anyway, so loyalty is not rewarded."},
+
+  // Round 2
+  {r:2,kind:"case",topic:"Kerala fishermen",
+   case:"Before cell phones, sardine prices on nearby beaches differed by about 100% on the same day. After phones, the gap nearly vanished.",
+   q:"What did the phones fix?",
+   o:["They lowered the cost of catching fish","They reduced information asymmetry between buyers and sellers","They removed middlemen who were overcharging","They let the government set one price"],a:1,
+   ex:"Sellers could find buyers, fish moved to where demand was, and both sides gained. Price dispersion was the measure of inefficiency."},
+  {r:2,kind:"concept",topic:"Merton's five functions",
+   q:"Which of these is NOT one of Merton's five financial functions?",
+   o:["Payments","Risk (insurance)","Customer service","Markets"],a:2,
+   ex:"The five are payments, capital allocation, money transfer, risk and markets. They outlast the institutions that perform them, which is the opening for FinTech."},
+  {r:2,kind:"concept",topic:"Christensen: low-end foothold",
+   q:"According to Christensen, how does a disruptive innovator usually start?",
+   o:["By making a better product for the incumbent's best customers","By serving customers the incumbent ignores, with a simpler product","By acquiring the incumbent","By lobbying for new regulation"],a:1,
+   ex:"It wins the low end, improves faster than the incumbent, then moves up to its core customers. Incumbents miss it because they listen to their best customers."},
+  {r:2,kind:"case",topic:"Robinhood as disruptor",
+   case:"Robinhood offered free, mobile, small trades to young first-time investors that Schwab ignored.",
+   q:"What is the strongest argument that Robinhood was NOT truly disruptive?",
+   o:["It targeted young people","Commission-free trading was quickly copied by incumbents","It used a mobile app","It collected user data"],a:1,
+   ex:"It passes the low-end foothold test, but a feature rivals copy in months is not a lasting innovation. Real innovation should show up in performance."},
+  {r:2,kind:"case",topic:"Through the Fog",
+   case:"Carolina Costa must advise a global bank whose profits come largely from SME lending and payments.",
+   q:"What should mainly drive her recommendation?",
+   o:["Whichever strategy is cheapest","The bank's business mix and how far FinTech has advanced in those segments","The CEO's personal preference","What other banks announced last year"],a:1,
+   ex:"Payments and lending were disrupted first, so waiting is risky for this bank. Partnering (integration) was the class favorite, but the answer must fit the context."},
+  {r:2,kind:"case",topic:"Visa and network effects",
+   case:"In the late 1960s, Bank of America considers a universal credit card accepted at any store.",
+   q:"What was the hardest problem?",
+   o:["The technology did not exist","Getting merchants and banks to join before there were cardholders","Customers did not want credit","Regulators banned it"],a:1,
+   ex:"A chicken-and-egg network-effects problem. The prize was a small merchant fee on every transaction, which is why card networks are so profitable today."},
+  {r:2,kind:"concept",topic:"What counts as money",
+   q:"Why is a Starbucks gift card not money?",
+   o:["It is not a store of value","It cannot be used everywhere, so it fails as a medium of exchange","It is digital","It is not backed by gold"],a:1,
+   ex:"Money must be a medium of exchange, a unit of account and a store of value. For the same reason, a Venmo balance is a payment layer, not money."},
+  {r:2,kind:"case",topic:"SVB bank run",
+   case:"In March 2023, Silicon Valley Bank faced a rumor and lost deposits faster than any bank in history.",
+   q:"Which combination made it vulnerable?",
+   o:["Too many small insured depositors","Losses on interest-rate bets plus concentrated, uninsured depositors","Too much cash on hand","A cyberattack"],a:1,
+   ex:"Selling bonds would lock in losses, and startups above the insured limit had every reason to run. Runs come from liquidity mismatch, leverage and concentration. Money is trust."},
+  {r:2,kind:"tf",topic:"Stablecoins",
+   q:"True or false: US stablecoin issuers like Circle pay interest to holders and are FDIC insured.",
+   o:["True","False"],a:1,
+   ex:"They must be fully backed by safe assets, pay no interest (to protect bank deposits) and are not FDIC insured. Circle shares collateral income with Coinbase instead. USDC briefly broke its peg during SVB."},
+
+  // Round 3
+  {r:3,kind:"concept",topic:"Capital-light preference",
+   q:"All else equal, why would a VC prefer Spotify to SpaceX at day one?",
+   o:["Music is more popular than rockets","Less capital needed means less dilution and a higher return on money invested","SpaceX has no customers","VCs avoid hardware by law"],a:1,
+   ex:"VCs look for capital-light, fast-growing, high-margin businesses. The same payoff on less invested capital is a higher return."},
+  {r:3,kind:"concept",topic:"Why diversification fails in VC",
+   q:"Why doesn't spreading money across many startups work the way an index fund does?",
+   o:["Startups are too expensive","Returns are skewed: most fail and a few win big, so picking winners matters most","VC funds are not allowed to diversify","Startups all move together"],a:1,
+   ex:"Public stocks have a positive average return; VC returns are skewed and the average may be negative. One unicorn must cover all the losses."},
+  {r:3,kind:"case",topic:"Matching investor to stage",
+   case:"A global payments company is raising its Series C.",
+   q:"Who is the most likely investor?",
+   o:["Friends and family","An angel investor","An accelerator like Y Combinator","A venture capital fund"],a:3,
+   ex:"Series A, B, C are VC rounds. Friends and family fund pre-revenue ideas, accelerators take prototypes, angels write small checks, corporate VCs invest strategically."},
+  {r:3,kind:"concept",topic:"TAM / SAM / SOM",
+   q:"Which market pitch would worry a VC most?",
+   o:["A huge market where we need a small share","A small niche where we need to capture half the market","A market growing every year","A clear serviceable segment within a large total market"],a:1,
+   ex:"VCs want a big total market where a small, credible share is enough, like Airbnb. That leaves room to be wrong."},
+  {r:3,kind:"case",topic:"Valuation vs. price",
+   case:"A VC's own DCF says FutureStar is worth about $227M. The founders want to raise at a $300M valuation.",
+   q:"What should the VC do?",
+   o:["Invest at $300M to win the deal","Invest only at a price below its own valuation, or walk away","Ignore the DCF","Raise its forecast to match"],a:1,
+   ex:"Valuation is what it is worth; price is what someone agrees to pay. Buying below your valuation is how the return is built in."},
+  {r:3,kind:"concept",topic:"Liquidation preferences",
+   q:"A startup with VC preferred stock is sold for less than hoped. Who is paid last?",
+   o:["The VC investors","Common shareholders, usually employees","The founders always come first","Everyone is paid equally"],a:1,
+   ex:"A preference pays the VC back first on a low exit. It is zero-sum, so common holders absorb the loss. Know where you stand before taking startup equity."},
+  {r:3,kind:"concept",topic:"Payment rails and open banking",
+   q:"Why do open banking and instant payments threaten apps like Venmo?",
+   o:["They ban mobile apps","Banks can see accounts and move money instantly themselves, so the app layer adds less","They make card fees higher","They require crypto"],a:1,
+   ex:"Venmo is a layer on top of slow rails. When the rails become instant and open, as in Brazil and the UK, the layer on top is less necessary."},
+  {r:3,kind:"case",topic:"Pirate Booty: unit economics",
+   case:"Pirate Booty outsourced its banking infrastructure, so its costs did not fall as it grew. Its forecast still showed margins improving by cutting marketing as a share of revenue, and claimed LTV/CAC of about 30x.",
+   q:"What is the main problem?",
+   o:["Outsourcing is never allowed for FinTechs","Cutting marketing while promising fast user growth is not believable, so they will likely need money sooner","The LTV/CAC ratio is too low","Students do not use phones"],a:1,
+   ex:"A healthy LTV/CAC is about 3-5x, using gross margin, not revenue. Tech strategy drives the forecast, which drives how much money must be raised."},
+  {r:3,kind:"case",topic:"Pirate Booty: outcome",
+   case:"RBS planned to buy Pirate Booty for about £25M, then found it ran on Wirecard just as the Wirecard scandal broke.",
+   q:"What happened to the equity holders?",
+   o:["They earned 2-3x","They got nothing: RBS hired the team instead (an acqui-hire)","They took the company public","They sold to another bank"],a:1,
+   ex:"A small team is easy to hire rather than buy, and an unprofitable startup has to accept bad terms."},
+
+  // Round 4
+  {r:4,kind:"concept",topic:"Long tail",
+   q:"What happens to niche products when online search costs fall?",
+   o:["They disappear","They find more buyers while top hits lose share","Prices of all products rise","Only best-sellers benefit"],a:1,
+   ex:"This is the long tail: product differentiation becomes a source of market power. Recommendation engines can push back toward sameness."},
+  {r:4,kind:"concept",topic:"Value of individual data",
+   q:"Why is one person's data worth almost nothing to a company?",
+   o:["Personal data is illegal to use","The company can predict that person from everyone else's data","Data loses value after one day","Companies only want anonymous data"],a:1,
+   ex:"So no market for personal data exists, and privacy becomes a collective-action problem: only refusing together would make data valuable."},
+  {r:4,kind:"concept",topic:"Privacy regulation and concentration",
+   q:"What was the second-order effect of GDPR and the YouTube COPPA settlement?",
+   o:["More small competitors entered","Large incumbents became more entrenched and markets more concentrated","Data collection increased","Ad prices fell to zero"],a:1,
+   ex:"Firms collected less data, but those that already had data or scale kept their edge. Compliance costs acted as a barrier to entry."},
+  {r:4,kind:"case",topic:"Bias from optimization",
+   case:"A STEM job ad on Facebook was set up to be gender-neutral, yet fewer young women saw it.",
+   q:"Why?",
+   o:["The advertiser excluded women","Women cost more to reach, and the algorithm minimized cost per view","Women opted out of ads","A data breach"],a:1,
+   ex:"A model optimizing one objective causes unintended harm. Similarly, a lending model trained on biased history learns the bias, even through proxies like zip code."},
+  {r:4,kind:"concept",topic:"What an LLM does",
+   q:"What does a large language model actually do?",
+   o:["Looks up facts in a database","Predicts the most likely next token given the context window","Creates new data about the world","Reasons like a human"],a:1,
+   ex:"It is a compressed model of human-generated text. The key input to all of it is humans and their data."},
+  {r:4,kind:"tf",topic:"Hallucination",
+   q:"True or false: hallucination is a bug that more training will eventually eliminate.",
+   o:["True","False"],a:1,
+   ex:"A model is a compression of reality, so it fills gaps with plausible text. Hallucination is built in, especially for rare facts."},
+  {r:4,kind:"concept",topic:"Model collapse",
+   q:"What happens when models are trained on AI-generated output?",
+   o:["They become more creative","They lose rare cases and drift toward the most common answers","They become cheaper to run","Nothing changes"],a:1,
+   ex:"This is model collapse: the tails of the distribution disappear. It is why AI labelers are not allowed to use AI to label."},
+  {r:4,kind:"case",topic:"Metcalfe vs. Reed",
+   case:"Reddit's value comes from thousands of subreddits that users form and join.",
+   q:"Which law best describes this network?",
+   o:["Metcalfe's law (pairwise connections)","Reed's law (subgroups)","Moore's law","Goodhart's law"],a:1,
+   ex:"Reed's law counts the groups users can form. Metcalfe's law counts pairs of users, which fits phones and LinkedIn."}
+];
+Q.forEach((q,i)=>q.id="q"+i);
+
+const KEY="fintech-sprint-v1";
+let state={answers:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.answers)state=s}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+const app=document.getElementById("app");
+let queue=[],pos=0,order=null,picked=null,mode="round";
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function roundQs(n){return Q.filter(q=>q.r===n)}
+function roundScore(n){const qs=roundQs(n);const done=qs.filter(q=>q.id in state.answers);return {done:done.length,total:qs.length,ok:done.filter(q=>state.answers[q.id]).length}}
+
+function home(){
+  const answered=Object.keys(state.answers).length;
+  const next=ROUNDS.find(r=>roundScore(r.n).done<roundScore(r.n).total);
+  app.innerHTML=`
+    <div class="intro">
+      <span class="label">FinTech · Midterm prep</span>
+      <h1>Midterm Sprint</h1>
+      <p class="muted">${Q.length} questions across four classes, about 20 minutes. Each question covers a different idea, so one pass covers the whole course. The real quiz is 10 questions on concepts and cases, not dates or formulas.</p>
+    </div>
+    <div class="rounds">
+      ${ROUNDS.map(r=>{const s=roundScore(r.n);const status=s.done===s.total?`<span class="pill done num">${s.ok}/${s.total}</span>`:s.done?`<span class="pill todo num">${s.done}/${s.total} done</span>`:`<span class="pill todo num">${s.total} questions</span>`;
+        return `<button class="round" data-r="${r.n}"><span class="rn">Class ${r.n}</span><span class="rt">${r.title}</span><span class="rscore">${status}</span><span class="rs">${r.sub}</span></button>`}).join("")}
+    </div>
+    <div class="row">
+      ${next?`<button class="btn" id="go">${answered?"Continue with class "+next.n:"Start class 1"}</button>`:`<button class="btn" id="results">See results</button>`}
+      ${answered?`<button class="btn secondary" id="reset">Start over</button>`:""}
+    </div>`;
+  app.querySelectorAll(".round").forEach(b=>b.onclick=()=>startRound(+b.dataset.r));
+  const go=document.getElementById("go");if(go)go.onclick=()=>startRound(next.n,true);
+  const rs=document.getElementById("results");if(rs)rs.onclick=results;
+  const re=document.getElementById("reset");if(re)re.onclick=confirmReset;
+  window.scrollTo(0,0);
+}
+
+function confirmReset(){
+  const row=app.querySelector(".row");
+  row.innerHTML=`<p style="flex-basis:100%">Clear all answers and start from class 1?</p><button class="btn" id="yes">Clear and restart</button><button class="btn secondary" id="no">Cancel</button>`;
+  document.getElementById("yes").onclick=()=>{state={answers:{}};save();home()};
+  document.getElementById("no").onclick=home;
+}
+
+function startRound(n,resume){
+  mode="round";
+  let qs=roundQs(n);
+  if(resume){const left=qs.filter(q=>!(q.id in state.answers));if(left.length)qs=left}
+  queue=qs;pos=0;show();
+}
+function startRetry(){
+  mode="retry";queue=Q.filter(q=>state.answers[q.id]===false);pos=0;show();
+}
+
+function show(){
+  const q=queue[pos];picked=null;
+  order=q.kind==="tf"?[0,1]:shuffle(q.o.map((_,i)=>i));
+  const r=ROUNDS[q.r-1];
+  const label=mode==="retry"?"Retry missed":`Class ${r.n} · ${r.title}`;
+  const kind={concept:"Concept",case:"Case",tf:"True or false"}[q.kind];
+  app.innerHTML=`
+    <div class="top">
+      <div class="topline"><span class="label">${label}</span><button class="link" id="exit">Exit</button></div>
+      <div class="bar" aria-hidden="true"><i style="width:${(pos/queue.length)*100}%"></i></div>
+      <span class="label num">Question ${pos+1} of ${queue.length}</span>
+    </div>
+    <div class="qcard">
+      <span class="kind">${kind}</span>
+      ${q.case?`<p class="case">${esc(q.case)}</p>`:""}
+      <p class="qtext">${esc(q.q)}</p>
+      <div class="opts" role="group" aria-label="Answers">
+        ${order.map(oi=>`<button class="opt" data-i="${oi}"><span>${esc(q.o[oi])}</span></button>`).join("")}
+      </div>
+      <div id="fb"></div>
+    </div>`;
+  document.getElementById("exit").onclick=home;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  window.scrollTo(0,0);
+}
+
+function answer(i){
+  if(picked!==null)return;
+  const q=queue[pos];picked=i;const ok=i===q.a;
+  state.answers[q.id]=ok;save();
+  app.querySelectorAll(".opt").forEach(b=>{b.disabled=true;const bi=+b.dataset.i;
+    if(bi===q.a)b.classList.add("correct");else if(bi===i)b.classList.add("wrong");else b.classList.add("dim")});
+  const last=pos===queue.length-1;
+  const nextLabel=last?(mode==="retry"?"See results":(queue[pos].r<4?"Finish class":"See results")):"Next question";
+  document.getElementById("fb").innerHTML=`
+    <div class="feedback ${ok?"ok":"bad"}" role="status">
+      <span class="verdict">${ok?"Correct":"Not quite. Answer: "+esc(q.o[q.a])}</span>
+      <p>${esc(q.ex)}</p>
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn" id="next">${nextLabel}</button></div>`;
+  const nb=document.getElementById("next");nb.onclick=next;nb.focus({preventScroll:true});
+  document.getElementById("fb").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
+}
+
+function next(){
+  if(pos<queue.length-1){pos++;show();return}
+  if(mode==="retry"){results();return}
+  const n=queue[pos].r;roundEnd(n);
+}
+
+function roundEnd(n){
+  const s=roundScore(n);const r=ROUNDS[n-1];
+  const missed=roundQs(n).filter(q=>state.answers[q.id]===false);
+  const nxt=ROUNDS.find(x=>x.n>n&&roundScore(x.n).done<roundScore(x.n).total)||ROUNDS.find(x=>roundScore(x.n).done<roundScore(x.n).total);
+  app.innerHTML=`
+    <div class="intro">
+      <span class="label">Class ${n} complete</span>
+      <h2>${r.title}</h2>
+    </div>
+    <div class="score">${s.ok}<span class="muted" style="font-size:1.5rem"> / ${s.total}</span></div>
+    ${missed.length?`<div class="intro"><span class="label">Review these</span><ul class="review">${missed.map(q=>`<li><b>${esc(q.topic)}</b><small>${esc(q.ex)}</small></li>`).join("")}</ul></div>`:`<p class="clear">Clean class. Nothing to review here.</p>`}
+    <div class="row">
+      ${nxt?`<button class="btn" id="cont">Continue to class ${nxt.n}</button>`:`<button class="btn" id="res">See final results</button>`}
+      <button class="btn secondary" id="home">Back to classes</button>
+    </div>`;
+  const c=document.getElementById("cont");if(c){c.onclick=()=>startRound(nxt.n,true);c.focus({preventScroll:true})}
+  const rs=document.getElementById("res");if(rs){rs.onclick=results;rs.focus({preventScroll:true})}
+  document.getElementById("home").onclick=home;
+  window.scrollTo(0,0);
+}
+
+function results(){
+  const done=Q.filter(q=>q.id in state.answers);const ok=done.filter(q=>state.answers[q.id]).length;
+  const missed=Q.filter(q=>state.answers[q.id]===false);
+  app.innerHTML=`
+    <div class="intro"><span class="label">Results</span><h2>All classes</h2></div>
+    <div class="score num">${ok}<span class="muted" style="font-size:1.5rem"> / ${Q.length}</span></div>
+    <div class="table">
+      ${ROUNDS.map(r=>{const s=roundScore(r.n);return `<div class="trow"><span>Class ${r.n} · ${r.title}</span><span class="num">${s.done?s.ok+" / "+s.total:"not started"}</span></div>`}).join("")}
+    </div>
+    ${missed.length?`<div class="intro"><span class="label">Topics to review (${missed.length})</span><ul class="review">${missed.map(q=>`<li><b>${esc(q.topic)}</b><small>Class ${q.r}. ${esc(q.ex)}</small></li>`).join("")}</ul></div>`:(done.length===Q.length?`<p class="clear">Every question answered correctly. You're ready.</p>`:"")}
+    <div class="row">
+      ${missed.length?`<button class="btn" id="retry">Retry ${missed.length} missed</button>`:""}
+      <button class="btn secondary" id="home">Back to classes</button>
+    </div>`;
+  const rt=document.getElementById("retry");if(rt)rt.onclick=startRetry;
+  document.getElementById("home").onclick=home;
+  window.scrollTo(0,0);
+}
+
+home();
+</script>
