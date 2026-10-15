@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NVF Midterm Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: single centered column (max 640px), one question per screen, answer feedback inline under the options */
+:root{
+  --bg:#f6f5f8; --surface:#ffffff; --fg:#17151c; --muted:#5f5b69; --line:#e0dde6;
+  --accent:#57068c; --accent-soft:#f1e9f7;
+  --ok:#1d6b45; --ok-soft:#e5f2ea; --bad:#a3302a; --bad-soft:#f8e8e6;
+  --s1:#57068c; --s2:#b56d0e; --s3:#23767d;
+  --display:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#131218; --surface:#1c1a23; --fg:#ecebf1; --muted:#a6a2b2; --line:#302d3a;
+  --accent:#c39bf0; --accent-soft:#2b2238;
+  --ok:#62c595; --ok-soft:#16291f; --bad:#f08a80; --bad-soft:#341c1a;
+  --s1:#c39bf0; --s2:#e8a752; --s3:#62bcc3; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#131218; --surface:#1c1a23; --fg:#ecebf1; --muted:#a6a2b2; --line:#302d3a;
+  --accent:#c39bf0; --accent-soft:#2b2238;
+  --ok:#62c595; --ok-soft:#16291f; --bad:#f08a80; --bad-soft:#341c1a;
+  --s1:#c39bf0; --s2:#e8a752; --s3:#62bcc3; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{background:var(--bg);color:var(--fg)}
+body{margin:0;font-family:var(--body);font-size:18px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+h1,h2{font-family:var(--display);font-weight:800;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:2.15rem;line-height:1.15}
+h2{font-size:1.6rem;line-height:1.2}
+p{margin:0}
+.label{font-size:.8rem;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:var(--radius);padding:14px 20px;font-weight:700;background:var(--accent);color:var(--bg);min-height:48px}
+.btn.secondary{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row .btn{flex:1 1 180px}
+
+/* home */
+.intro{display:flex;flex-direction:column;gap:12px}
+.rounds{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}
+.round{display:grid;grid-template-columns:auto 1fr auto;gap:4px 14px;align-items:center;padding:16px;border-top:1px solid var(--line);text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%}
+.round:first-child{border-top:0}
+.round:hover{background:var(--accent-soft)}
+.round .rn{font-size:.85rem;font-weight:600;color:var(--muted);grid-row:span 2;min-width:3.6em}
+.round .rt{font-weight:700;min-width:0}
+.round .rs{font-size:.9rem;color:var(--muted);min-width:0}
+.round .rscore{font-size:.85rem;grid-row:span 2;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.75rem;font-weight:600}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.pill.todo{background:var(--accent-soft);color:var(--accent)}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.mode{display:flex;flex-direction:column;gap:2px;text-align:left;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.mode:hover{border-color:var(--accent)}
+.mode b{font-weight:700}
+.mode small{color:var(--muted);font-size:.85rem}
+
+/* quiz */
+.top{display:flex;flex-direction:column;gap:10px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding-block:8px;z-index:2}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.link{background:none;border:0;color:var(--accent);padding:6px 0;font-size:.9rem}
+.bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .25s ease}
+.qcard{display:flex;flex-direction:column;gap:18px}
+.kindrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kind{font-size:.8rem;font-weight:700;color:var(--accent);letter-spacing:.02em}
+.topic{font-size:.8rem;color:var(--muted)}
+.trap{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--bad-soft);color:var(--bad)}
+.qtext{font-size:1.25rem;line-height:1.45;font-weight:600}
+.case{padding:12px 14px;border-left:3px solid var(--accent);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;font-weight:400}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{font-weight:500;display:flex;gap:12px;align-items:flex-start;text-align:left;padding:14px 16px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);min-height:52px;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt span{min-width:0}
+.opt:disabled{cursor:default}
+.opt.correct{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.dim{opacity:.55}
+.feedback{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.feedback .verdict{font-weight:700}
+.feedback.ok .verdict{color:var(--ok)}
+.feedback.bad .verdict{color:var(--bad)}
+.why{font-size:.95rem;padding-top:10px;border-top:1px solid var(--line)}
+.why b{font-weight:700}
+.mark{font-size:.92rem;padding:8px 12px;border-radius:10px;background:var(--accent-soft);color:var(--fg)}
+.mark b{color:var(--accent);font-weight:700}
+
+/* figures */
+.fig{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.fig .ftitle{font-size:.85rem;font-weight:700;color:var(--muted)}
+.fig .fnote{font-size:.78rem;color:var(--muted)}
+.bars{display:flex;flex-direction:column;gap:8px}
+.brow{display:grid;grid-template-columns:minmax(0,9.5rem) minmax(0,1fr) auto;gap:10px;align-items:center;font-size:.88rem}
+.brow .bl{min-width:0;line-height:1.25}
+.track{height:16px;background:var(--line);border-radius:4px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--s1);min-width:2px;border-radius:4px}
+.brow.hl .track i{background:var(--s2)}
+.brow .bv{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.tbl{overflow-x:auto}
+.tbl table{border-collapse:collapse;width:100%;font-size:.86rem;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{font-weight:700;color:var(--muted);font-size:.8rem}
+.tbl tr.hl td{background:var(--accent-soft)}
+.svgwrap svg{width:100%;height:auto;display:block;color:var(--fg)}
+.svgwrap .ax{stroke:var(--line);stroke-width:1}
+.svgwrap .zero{stroke:var(--muted);stroke-width:1;stroke-dasharray:3 3}
+.svgwrap text{fill:var(--muted);font-family:var(--body);font-size:19px}
+.svgwrap text.sl{font-weight:700;font-size:21px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+
+/* results */
+.score{font-family:var(--display);font-weight:800;font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.table{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.trow{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.trow:first-child{border-top:0}
+.trow span:first-child{min-width:0}
+.review{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.review li{padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.review b{display:block}
+.review small{color:var(--muted);font-size:.9rem}
+.clear{padding:14px 16px;border-radius:var(--radius);background:var(--ok-soft);color:var(--ok)}
+.confirm{display:flex;flex-direction:column;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+
+@media (max-width:420px){.brow{grid-template-columns:minmax(0,7rem) minmax(0,1fr) auto}.qtext{font-size:1.15rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const ROUNDS = [
+  {n:0, title:"Core ideas", sub:"Themes the professor repeats in every class"},
+  {n:1, title:"The VC framework", sub:"Opportunity recognition · Lego 1 · Assignment 1"},
+  {n:2, title:"Parties and mindsets", sub:"Black swans, Hotmail, J vs N curve · Lego 2"},
+  {n:3, title:"Valuing a new venture", sub:"VC method, discount rates, IRR · Lego 3 · Assignment 2a"},
+  {n:4, title:"The term sheet", sub:"Securities, anti-dilution, pro rata · Lego 4 · Assignments 2b, 3"},
+  {n:5, title:"Exit and harvest", sub:"IPO, M&A, SPACs, windows · Lego 5 and 6"}
+];
+const ILL="Shape rebuilt from the lecture description, not the slide's exact data.";
+
+/* Figures */
+const F = {
+  power:{type:"bars",title:"Outcomes of a typical VC portfolio (% of investments)",unit:"%",max:100,rows:[["Fail or near zero",80],["Return roughly the money",15],["10x, 50x, 100x+",5,1]]},
+  cml:{type:"bars",title:"Required return by capital provider (Pepperdine capital market line)",unit:"%",max:45,rows:[["Banks",6.5],["Asset-based lenders",11],["Mezzanine",18],["Private equity",25],["Venture capital",42,1]]},
+  methods:{type:"bars",title:"Valuation methods VCs report using (Pepperdine 2009, 185 VCs)",unit:"%",max:100,rows:[["Market analysis",96],["Multiples",78],["Gut feel",67,1],["DCF",43],["Simulation",22],["Real options",10]]},
+  dilution:{type:"bars",title:"Median % of the company sold per round (Carta 2021)",unit:"%",max:30,rows:[["Seed",21],["Series A",24,1],["Series B",18],["Series C",14.5],["Series D",11]]},
+  deals:{type:"bars",title:"Deal count at top VC firms",unit:"",max:1100,rows:[["2021",1031],["2023 YTD",244,1]]},
+  vcpower:{type:"bars",title:"Share of total VC returns captured (a16z / NBER sample)",unit:"%",max:100,rows:[["Top 1% of investors",57],["Top 5% of investors",90,1]],note:"About 62% of investors in the sample had no successful investment."},
+  disp:{type:"bars",title:"Spread between top- and bottom-quartile managers (basis points)",unit:"bp",max:3600,rows:[["Bonds",30],["Venture capital",3500,1]],note:"Private equity and real estate sit in between."},
+  funnel:{type:"table",title:"Share of pitches reaching each stage",head:["Stage","Angel","Corporate VC","VC firm"],rows:[["Phone call","80–100%","~50%","80–100%"],["Meeting","~50%","~40%","~25%"],["Business plan","~25%","~30%","~10%"],["Due diligence","~5%","~3%","~1%"]],hl:[3]},
+  irr:{type:"table",title:"Annual return (IRR) by multiple and holding period",head:["Years","2x","2.5x","3x","5x","10x"],rows:[["2","41%","58%","73%","124%","216%"],["3","26%","36%","44%","71%","115%"],["5","15%","20%","25%","38%","58%"],["7","10%","14%","17%","26%","39%"],["10","7%","10%","12%","17%","26%"]]},
+  scen:{type:"table",title:"A VC portfolio priced deal by deal",head:["Outcome","% of deals","5-yr multiple","Annual return"],rows:[["Exceed plan","10%","13x","67%"],["Meet plan","15%","7.5x","50%"],["Sideways","50%","1.75x","12%"],["Loss","25%","0.25x","−24%"],["Portfolio","100%","3.38x","28%"]],hl:[4]},
+  anti:{type:"table",title:"VC-A holds 20% at a $1,000 valuation; VC-B buys 10% of the new round",head:["","Last round","Up round","Down round","Down + full ratchet"],rows:[["Shares","100","111","111","111"],["$ / share","10","18","4.5","4.5"],["Enterprise value","$1,000","$2,000","$500","$500"],["Entrepreneur","80%","72%","72%","50%"],["VC-A","20%","18%","18%","40%"],["VC-B","–","10%","10%","10%"],["Value to VC-A","$200","$360","$90","$200"]],hl:[6]},
+  fb:{type:"table",title:"Facebook return profile (to Jan 2012)",head:["Round","Invested","Multiple"],rows:[["Angel","$0.5M","4,800x"],["Series A","$12.7M","834x in 7 yrs"],["Round D","$25M","7.5x in 5 yrs"]]},
+  iw:{type:"table",title:"Invisible Wires: valuation inputs",head:["Input","Entrepreneur","VC base case"],rows:[["Addressable homes","50%","30–50% (base 50%)"],["Penetration","10–20%","5–15% (base 10%)"],["Bill per home","$50/month","$80 internally ($50 + $30 VoIP)"],["Exit multiple","–","~8x revenue (2× Moto)"],["Discount rate","20–30%","40–60% (base 50%)"]],hl:[3]},
+  hot:{type:"table",title:"Hotmail staged financing (Assignment 2b)",head:["Round","Invested","$/share","Post-money","VC cum. %"],rows:[["Series A","$0.315M","$0.16","$2.0M","15.8%"],["Series B","$0.75M","$0.51","$7.1M","24.6%"],["Series C","$1.515M","$1.00","$15.4M","32.0%"],["Series D – call","$2.03M","$2.00","$32.9M","36.2%"],["Series D – put","$2.03M","$1.50","$25.2M","37.5%"],["Series D – renegotiated","$2.5M","$1.25","$21.8M","39.8%"]]},
+  roundb:{type:"table",title:"Invisible Wires Round B: funding the 1M-home expansion ($M)",head:["Step","$M"],rows:[["Need: $100/home × 1M homes","100.0"],["Less: county 1 already built","(10.0)"],["Less: cash on hand","(19.0)"],["Gap","71.1"],["Less: debt against county-1 spectrum and cash flows","(38.4)"],["Plus: cash diverted to service debt","4.2"],["Gap after debt","36.9"],["Less: staging (early counties fund later ones)","(50.0)"],["Result","~13 surplus"]],hl:[8]},
+  vintage:{type:"table",title:"Net IRR by fund vintage (UC Regents data)",head:["Fund vintage","Net IRR"],rows:[["Started just before the bubble (Kleiner VII)","~122%"],["Started at the dot-com peak (1999–2000)","−30% to −50%"]]},
+  alpha:{type:"table",title:"Trendsetter: two $5M term sheets (Assignment 3)",head:["Term","Alpha","Mega"],rows:[["Pre-money","$7.35M (or $6.65M if hurdle missed)","$7.0M"],["Dividend","Non-cumulative 7.6–8.4%","Cumulative 10%"],["Liquidation pref.","1x, participates to a 3x cap","1.25x + 0.25x dividends, fully participating"],["Anti-dilution","Weighted average","Weighted average; full ratchet below 50%"],["Escrow / board","Escrow shares; VCs take 5th seat if hurdle missed","None"]]},
+  jn:{type:"line",title:"Reported fund returns over the fund's life",xlab:"Months since fund start",ylab:"Reported IRR",xmin:0,xmax:120,ymin:-20,ymax:30,zero:1,
+      xt:[[0,"0"],[16,"16"],[40,"40"],[80,"80"],[120,"120"]],yt:[[-20,"−"],[0,"0"],[30,"+"]],
+      series:[{name:"Line 1",c:"s1",pts:[[0,0],[12,-8],[24,-14],[36,-12],[48,-4],[60,6],[84,18],[120,26]]},
+              {name:"Line 2",c:"s2",pts:[[0,0],[8,12],[16,24],[26,17],[40,8],[60,3],[84,0],[120,-2]]}],note:ILL},
+  turkey:{type:"line",title:"A steadily growing series",xlab:"Days",ylab:"Value",xmin:0,xmax:1100,ymin:0,ymax:40,
+      xt:[[0,"0"],[250,"250"],[500,"500"],[750,"750"],[1000,"1,000"]],yt:[[0,"0"],[20,"20"],[40,"40"]],
+      series:[{name:"Observed",c:"s1",pts:[[0,8],[100,10],[200,12],[300,14],[400,16],[500,18],[600,20],[700,22],[800,24],[900,26],[1000,28]]}],dot:[1100,"?"]},
+  seedlate:{type:"line",title:"Share of VC dollars by stage, 1995–2005",xlab:"Year",ylab:"Share of VC dollars",xmin:1995,xmax:2005,ymin:0,ymax:70,
+      xt:[[1995,"1995"],[2000,"2000"],[2005,"2005"]],yt:[[0,"0%"],[35,"35%"],[70,"70%"]],
+      series:[{name:"Seed",c:"s3",pts:[[1995,30],[1996,33],[1997,36],[1998,40],[1999,45],[2000,42],[2001,30],[2002,22],[2003,18],[2004,17],[2005,16]]},
+              {name:"Late stage",c:"s1",pts:[[1995,35],[1996,34],[1997,32],[1998,31],[1999,30],[2000,33],[2001,42],[2002,50],[2003,55],[2004,56],[2005,58]]}],note:ILL},
+  payoff:{type:"line",title:"Payoff to the investor by company value at exit",xlab:"Company value at exit",ylab:"Payoff",xmin:0,xmax:100,ymin:0,ymax:100,
+      xt:[[0,"0"],[30,"Pref."],[75,"Convert"],[100,""]],yt:[[0,"0"],[100,""]],
+      series:[{name:"A",c:"s2",pts:[[0,0],[30,30],[100,30]]},
+              {name:"B",c:"s1",pts:[[0,0],[30,30],[75,30],[100,40]]},
+              {name:"C",c:"s3",pts:[[0,0],[100,100]]}],note:"Illustrative payoff shapes."}
+};
+
+/* Question bank.
+   k: tf | mc | case | cmt | calc | fig ; a = index of correct option
+   w = why each wrong option is wrong (aligned with o) ; m = line that earns marks ; trap = the class mostly got it wrong ; fixed = keep option order */
+const TF=["True","False"];
+const Q = [
+/* ───────── Core ideas ───────── */
+{r:0,k:"fig",t:"Power law",fig:"power",
+ q:"What does this distribution mean for how a VC fund makes money?",
+ o:["A handful of outliers pay for all the losers","The average deal earns a modest positive return","Diversifying across many deals guarantees the fund target","Most deals return the money, so losses are small"],a:0,
+ ex:"VC is a non-normal, power-law asset class: about 80% fail, about 15% return capital and about 5% pay for everything. One 1,000x position covers 999 losing dollars, which is Y Combinator's model (Coinbase ~1,000x, Airbnb ~800x).",
+ w:[null,"There is no reliable 'average deal'. Outcomes are fat-tailed, so the mean is driven by a few extremes.","Spreading bets doesn't help if you miss the outliers. Winners pay for losers, and you must actually hold the winners.","Only about 15% return roughly the money. About 80% fail."],
+ m:"VC is a non-normal, power-law distribution: about 80% fail, about 15% return capital, about 5% pay for everything."},
+{r:0,k:"tf",t:"Normal-distribution tools",o:TF,a:1,
+ q:"True or false: Excel models and LLMs are good at predicting which start-ups will be outliers, because they are trained on large amounts of data.",
+ ex:"They are built on normal distributions and history. A new venture (years 0–3) has no history, no liquidity and a power-law outcome, so the tools taught elsewhere at Stern break down here.",
+ m:"Those models assume history, liquidity and normality; a new venture has none of them."},
+{r:0,k:"mc",t:"The donut",trap:1,
+ q:"You invest $100 and get $1 back. In the professor's language, is that a donut?",
+ o:["No. A donut is getting exactly $0 back","Yes. Any loss over 90% is a donut","Yes. Any loss at all is a donut","No. A donut is a deal that returns exactly 1x"],a:0,
+ ex:"A donut is putting in $100 and getting exactly $0. Getting even $1 back is not a donut. That's why structure matters: a liquidation preference or a resellable asset keeps you off zero.",
+ w:[null,"There is no 90% threshold. The definition is exactly zero.","Losses are normal in VC. Only a total wipe-out is a donut.","Returning 1x is getting your money back, which is a 'sideways' outcome."]},
+{r:0,k:"mc",t:"Why donuts kill careers",
+ q:"At the professor's firm, what happens to an associate who has three donuts before making partner?",
+ o:["No partnership","Nothing, as long as the fund hits its target","A smaller share of carry","They must co-invest personally in the next deal"],a:0,
+ ex:"The founder's rule: three donuts before partner means no partnership. Partners can afford donuts; juniors can't. Over 20 years he had only one donut, and it came from a litigation escrow, not the business."},
+{r:0,k:"mc",t:"Avoiding donuts",
+ q:"Which two levers does the professor use to avoid donuts?",
+ o:["Structure (liquidation preference, residual assets) and sizing (staging, smaller checks)","Higher discount rates and lower valuations","Taking board control and replacing the founder","Investing only in late-stage companies with history"],a:0,
+ ex:"Structure, such as a liquidation preference or a tangible or intangible residual asset like spectrum, and sizing, such as staging the money or writing a smaller check when you can't negotiate. He credits structure for getting 'at least 5 cents on the dollar'.",
+ w:[null,"Pricing changes the return if things work. It does not stop a total loss.","Control rarely protects you in a start-up. The value is human capital, and removing the founder can make the team walk.","That avoids the asset class rather than managing it. VC is about upside."]},
+{r:0,k:"mc",t:"Only two numbers are real",
+ q:"According to the professor, which numbers in a VC deal are real?",
+ o:["The amount you invest, and zero","The post-money valuation and the exit multiple","The latest round's price and the fund's IRR","Revenue and ARR"],a:0,
+ ex:"Every other number is 'fake until it's real'. A mark becomes real only at exit, through an IPO or M&A (Kevin Systrom, Instagram).",
+ w:[null,"Valuations are negotiated marks, and the exit multiple is a guess.","The latest price is a mark on the marginal share. You can't spend unrealized IRR.","Private companies can define revenue and ARR almost any way they like."]},
+{r:0,k:"cmt",t:"Skeptical, never pessimistic",
+ c:"A classmate says: \"The disciplined VC rejects anything that might fail and invests only where the downside is fully protected.\"",
+ q:"Which evaluation is closest to the professor's view?",
+ o:["Wrong mindset: skepticism is fine, pessimism isn't. VC is an upside asset class that needs rational optimism","Correct: protecting the downside is the main job of a VC","Correct, because about 80% of deals fail","Wrong, because a VC should never think about the downside"],a:0,
+ ex:"\"It is okay to be skeptical; it is not okay to be pessimistic.\" A pessimist rejects everything or invests only for downside protection, which is the wrong mindset for a power-law asset class.",
+ w:[null,"The goal is 'protect the downside, capture the upside'. Downside protection alone gives up the reason to be in VC.","The high failure rate is exactly why you need the few winners. Rejecting everything risky means missing them.","He uses structure to protect the downside all the time. The point is to do both."],
+ m:"Be skeptical, never pessimistic."},
+{r:0,k:"mc",t:"The line in the sand",
+ q:"What changes when you cross the 'line in the sand'?",
+ o:["You commit capital: you go from talker to investor, locked in for 5–8 years with no sell button","You sign the NDA and start due diligence","The company IPOs and your shares become liquid","You get a board seat and take control"],a:0,
+ ex:"Before committing, you write memos and do due diligence, and mistakes are cheap. After, you have skin in the game: a psychological and career loss function with no way out."},
+{r:0,k:"tf",t:"Weighting outside opinions",o:TF,a:1,
+ q:"True or false: a consultant's or sell-side analyst's view of a start-up should be weighted at 100%, because they are the experts.",
+ ex:"They have no capital at risk, so weight their information at a probability, never 100%. Real asymmetric information is the kind you control: his secret in Invisible Wires was knowing five other spectrum holders."},
+{r:0,k:"mc",t:"Language in an interview",
+ q:"In an interview you describe a winning deal. Which word does the professor tell you never to use?",
+ o:["Luck","Timing","Extrapolation","Capital flows"],a:0,
+ ex:"Say timing, capital flows or correct deployment, and say 'extrapolation', not guessing. \"There are no bad ideas in tech, only bad timing\" (Marc Andreessen).",
+ w:[null,"Timing is exactly the word he wants instead of luck.","He prefers 'extrapolation' to 'guessing'.","Capital flows is one of his preferred replacements for luck."]},
+{r:0,k:"mc",t:"Return has four parts",
+ q:"Return in VC is a function of which four things?",
+ o:["Time, multiple, uncertainty and structure","Price, growth, margin and beta","Risk-free rate, beta, market premium and size","Revenue, EBITDA, cash and debt"],a:0,
+ ex:"Return = f(Time + Structure + Multiple + Uncertainty). The IRR table captures time and multiple; structure is the term sheet (class 4).",
+ w:[null,"These are operating drivers, not the components of a VC return.","That is a CAPM-style build-up, which doesn't fit illiquid, non-normal start-ups.","These are accounting lines. Early-stage companies often have none of them."]},
+{r:0,k:"mc",t:"Survive like a cockroach",
+ q:"Why does the professor say surviving 'like a cockroach' matters?",
+ o:["Survival buys time, and time gives compounding and a chance at convexity","Survival protects the founder's reputation","Survival lets you avoid raising more money","Survival is required to keep the board seat"],a:0,
+ ex:"Most start-ups die. Staying alive keeps the option open for the convex payoff that makes VC work."},
+{r:0,k:"mc",t:"Negotiating leverage",
+ q:"Risk and return have a third dimension in VC. What is it?",
+ o:["Who holds negotiating leverage","Liquidity","Correlation with the S&P 500","The founder's age"],a:0,
+ ex:"VCs held leverage when capital was scarce (2002–03, 2008–09, 2018). Founders hold it post-COVID and in 2026 AI. Always answer by context: year, interest rates and who can walk away.",
+ w:[null,"Illiquidity is part of the return story, but his 'third dimension' is leverage.","Low correlation is why VC counts as an asset class, but it isn't the third dimension.","Founder age is a myth topic (average ~39), not a risk-return dimension."],
+ m:"It depends on the sector and the context (year, interest rates, negotiating leverage)."},
+{r:0,k:"case",t:"2026: founders hold leverage",
+ c:"It's 2026. You want into a hot AI seed round, but you think the founder's price is too high. Ten other VCs are at the door.",
+ q:"What is the realistic move?",
+ o:["Take the price, or write a smaller check","Insist on a lower valuation and a week of extra due diligence","Ask for a full ratchet to compensate","Demand board control"],a:0,
+ ex:"Capital is plentiful, so the founder sets the price. You can size down, for example $250K instead of $1M. In 2003 you could demand more diligence; today you ask gently for 30 more minutes.",
+ w:[null,"That worked in Jan 2003, when capital was scarce. Today the founder walks to the next VC.","Onerous protection terms are another way of losing the deal in a founder-friendly market.","Control is not the point in VC, and no hot founder would accept it."]},
+{r:0,k:"mc",t:"Adapt and learn to learn",
+ q:"Hot sectors rotate. After e-retail, apps, crypto and AI, which sectors does the professor see next?",
+ o:["Robotics, space and longevity","Social media and gaming","Real estate and retail","Commodities and shipping"],a:0,
+ ex:"The best people adapt to markets, regulation and geography and reinvent themselves every 2–3 years. \"Learn to learn.\""},
+
+/* ───────── Class 1 ───────── */
+{r:1,k:"mc",t:"What a VC is",
+ q:"Which is NOT part of the slide definition of a venture capitalist?",
+ o:["Its primary goal is access to new technology","It invests LPs' money as a financial intermediary","It invests only in private companies","It takes an active role in monitoring and supporting the company"],a:0,
+ ex:"The five parts: a financial intermediary, private companies only, an active role, a primary goal of financial return through an exit (IPO or sale), and funding internal growth. Corporates invest for technology; angels often invest for friendship.",
+ w:[null,"This is part of the definition: VCs invest pensions', endowments', insurers' and wealthy individuals' money.","This is part of the definition.","This is part of the definition: a board seat or observer role."]},
+{r:1,k:"case",t:"Primary vs secondary",
+ c:"You buy Apple shares on Robinhood. Separately, your fund invests in a start-up's Series A.",
+ q:"What is the key difference?",
+ o:["The VC's cash goes onto the company's balance sheet for newly issued shares; on Robinhood you swap shares with another holder","There is no difference; both are equity purchases","The VC buys debt, Robinhood buys equity","The Robinhood purchase funds Apple's growth"],a:0,
+ ex:"VC funds internal growth: debit cash, credit equity. That direct relationship with the company is why VC is hands-on.",
+ w:[null,"Both are equity, but only the VC deal puts money into the company.","Seed and early VC is all equity (common or preferred), no debt.","A secondary trade moves money between shareholders, not to the company."]},
+{r:1,k:"mc",t:"Knowledge arbitrage",
+ q:"What is VC's unique source of advantage?",
+ o:["Knowledge arbitrage: access and information before others","Capital structure arbitrage","Valuation arbitrage (long-short)","Cheap capital"],a:0,
+ ex:"No debt in years 0–3 (no free cash flow, no collateral), and you can't short a start-up. Capital is plentiful. The edge is access, network and getting in early. Buyouts use capital structure; hedge funds use valuation.",
+ w:[null,"That's the buyout model. Start-ups have no cash flow to service debt.","That's the hedge-fund model. You can't short a private start-up.","Capital is plentiful today; it isn't an edge."]},
+{r:1,k:"tf",t:"No debt at seed",o:TF,a:1,
+ q:"True or false: like buyout funds, VCs use leverage at the seed stage to boost returns.",
+ ex:"There is no debt in years 0–3: no free cash flow to pay interest and no collateral. It's all equity, and equity can go to zero."},
+{r:1,k:"mc",t:"Mark-to-market",
+ q:"How often is a VC portfolio typically marked?",
+ o:["Every 6–12 months, at new rounds or year-end 409A","Daily","Quarterly, using public comps","Only at exit"],a:0,
+ ex:"Very limited marking is one reason hedge funds moved into VC: no daily red and green screens. Hedge funds mark daily; buyouts have limited marking.",
+ w:[null,"Daily marking is the hedge-fund world.","There's no daily or quarterly market price for a start-up.","There are interim marks, at new rounds or year-end. They just aren't real until exit."]},
+{r:1,k:"mc",t:"How big is VC",
+ q:"How big is VC relative to the stock market?",
+ o:["Under 10%","10–50%","50–100%","Larger than the stock market"],a:0,
+ ex:"VC is tiny: under 10% of the stock market and about 12% of private equity. Private equity means any equity not listed on an exchange: buyouts, real estate, VC."},
+{r:1,k:"tf",t:"Big companies are private",o:TF,a:0,
+ q:"True or false: about 80% of US companies with $100M+ revenue are private.",
+ ex:"True. Most are family businesses, not VC-backed."},
+{r:1,k:"mc",t:"Rates and the risk curve",
+ q:"When the risk-free rate goes to zero, where do pensions and endowments move?",
+ o:["Out the risk curve into alternatives such as VC","Into government bonds","Into cash","Into money-market funds"],a:0,
+ ex:"QE and a zero risk-free rate pushed investors from government debt to senior debt, equity, then VC and crypto. It reverses when rates normalize; in 2026 the 10-year is about 5%.",
+ w:[null,"Bonds yield almost nothing at zero rates, and pensions have return targets to hit.","Cash earns zero; they need return.","Same problem as cash."]},
+{r:1,k:"mc",t:"Why hedge funds went into VC",
+ q:"Why did hedge funds move into VC?",
+ o:["All of these","Minimal mark-to-market","A hidden, asymmetric edge with no need to beat the S&P or Nasdaq","Long-term locked capital instead of 1-month to 1-year redemptions"],a:0,fixed:1,
+ ex:"All three: no daily red/green stress, a hidden edge with no public benchmark, and 10 years of locked capital."},
+{r:1,k:"mc",t:"The see-saw",
+ q:"On the see-saw slide, what stays constant and what swings?",
+ o:["Innovation is constant; capital deployment swings with risk appetite","Capital is constant; innovation swings","Both swing together","Valuations are constant; deal counts swing"],a:0,
+ ex:"Risk-averse periods (2001–02, 2008–09) give capital owners the strongest negotiating position, even though ideas keep coming."},
+{r:1,k:"calc",t:"Flow of funds",
+ c:"$100 is committed and split into 10 ventures of $10 each (ignore the fee). Five go to $0 and five reach $30 each.",
+ q:"How much is harvested?",
+ o:["$150","$100","$300","$50"],a:0,
+ ex:"5 × $30 = $150. It's distributed as (1) a return of capital, then (2) a return on capital, shared with the GP through carry.",
+ w:[null,"That's only the capital committed.","That assumes all ten reach $30. Five went to zero.","That's the profit ($150 − $100), not the amount harvested."]},
+{r:1,k:"tf",t:"Permanent capital",o:TF,a:1,
+ q:"True or false: a VC fund is permanent capital, like equity in a listed company.",
+ ex:"A fund has a 10-year life plus up to 2 years of extension: an 'incomplete circle'. A listed share is a perpetuity, a 'complete circle'. That maturity mismatch is why Blackstone, KKR and Carlyle listed.",
+ m:"VC is not permanent capital: the fund must invest, grow and exit within its term."},
+{r:1,k:"mc",t:"Phases of growth",
+ q:"Which investor fits the rapid-growth phase (3–10 years, ending in stable growth)?",
+ o:["Hedge funds","VC","Angels","Buyouts only"],a:0,
+ ex:"Venture phase (0–7 years, ending in IPO or acquisition) is VC; rapid growth is hedge funds; stable growth is buyouts and hedge funds. This course covers 0 → T; corporate finance covers T+."},
+{r:1,k:"tf",t:"Myth: young dropouts",o:TF,a:1,
+ q:"True or false: most tech founders are young dropouts.",
+ ex:"Kauffman: the average tech-startup founder is 39, and founders over 50 outnumber those under 25 two to one."},
+{r:1,k:"mc",t:"Myth: driven by VC",
+ q:"Where does about 80% of start-up funding come from?",
+ o:["Family, friends, fools and angels","VC firms","Corporate VC","Banks"],a:0,
+ ex:"VC matters mostly in capital-intensive sectors such as tech and biotech."},
+{r:1,k:"mc",t:"Idea vs opportunity",
+ q:"Nook → Peloton, Fire Phone → Alexa, Newton → iPad, Digicash → Bitcoin. What do these pairs show?",
+ o:["The idea was right but the timing was not","Big companies can't innovate","First movers always win","Hardware always fails"],a:0,
+ ex:"Opportunity doesn't equal certain success. Opportunity = probability of success relative to the risk-return outlay over time."},
+{r:1,k:"mc",t:"What you can control",
+ q:"Due diligence, negotiation, valuation, timing and luck turn an idea into an opportunity. Which are NOT controllable?",
+ o:["Timing and luck","Due diligence and negotiation","Valuation and negotiation","All five are controllable"],a:0,
+ ex:"Only the first three are controllable."},
+{r:1,k:"mc",t:"The investment memo",
+ q:"What are the four components of the professor's firm's memo template?",
+ o:["Market, People, Context, Deal","Management, Moats, Forecastability, Price","Scalable, Sustainable, Sentiment, Size","TAM, SAM, SOM, CAC"],a:0,
+ ex:"Each is written up and ranked A/B/C, because no one knows which matters most. There is no one right way to write a memo; each firm differs (see bvp.com/memos).",
+ w:[null,"That's the alternative framework he mentions, not his firm's template.","Those are his three S's, not the memo.","Those are market-sizing and unit-economics terms."]},
+{r:1,k:"mc",t:"The three S's",
+ q:"What are the professor's three S's for testing an opportunity?",
+ o:["Scalable, Sustainable, Sentiment","Speed, Size, Strategy","Simple, Scalable, Secure","Seed, Series, Sale"],a:0,
+ ex:"In Invisible Wires: scalable (the licenses), sustainable (a moat and a team that lowers key-man risk) and sentiment (hype, other VCs)."},
+{r:1,k:"cmt",t:"Invest in the entity",
+ c:"A classmate says: \"Would you invest in someone like Steve Jobs? Of course. Would you want to work for him? No. So investing in him would be a mistake.\"",
+ q:"What is the flaw?",
+ o:["You invest in the entity, not the person; working for someone is a different question","There's no flaw: never invest in a founder you wouldn't work for","VCs don't care about founders at all","Charisma is always a negative signal"],a:0,
+ ex:"\"Invest in people, not ideas\" (Arthur Rock), but the investment is in the company. Charisma can be positive (selling, creating an aura) or negative (vision without execution).",
+ w:[null,"That mixes up the employee's question with the investor's.","At seed you have only people; founders matter a lot.","Charisma cuts both ways."]},
+{r:1,k:"fig",t:"The funnel",fig:"funnel",
+ q:"What share of the pitches a VC firm receives reaches due diligence?",
+ o:["About 1%","About 10%","About 25%","About 5%"],a:0,
+ ex:"There's an order-of-magnitude difference by mindset. Y Combinator funds under 2%; Kleiner Perkins' iFund got 6,000 requests and funded 14. Many darts are still thrown, which is why winners pay for losers.",
+ w:[null,"About 10% reach the business-plan stage at a VC firm.","About 25% get a meeting.","About 5% is the angel figure."]},
+{r:1,k:"mc",t:"Gartner hype cycle",
+ q:"What is the order of the Gartner hype cycle?",
+ o:["Trigger → peak of inflated expectations → trough of disillusionment → slope → plateau","Trigger → trough → peak → plateau → slope","Peak → trigger → slope → trough → plateau","Plateau → trigger → peak → trough → slope"],a:0,fixed:1,
+ ex:"It's part of 'context' in the opportunity framework. Example: even Amazon was in the 'all internet' trough in 2002."},
+{r:1,k:"mc",t:"Biggest liquidity event",
+ q:"Why does the professor call 2025–27 'the biggest liquidity event in history'?",
+ o:["OpenAI, Anthropic and SpaceX together are worth more than all VC invested in US companies since 2010","More start-ups are being liquidated than ever","Interest rates fell to zero again","Secondary markets were banned"],a:0,
+ ex:"OpenAI ~$852B, Anthropic ~$965B, SpaceX IPO ~$1.7T: $3.5T+ combined, versus $2.7T of total US VC investment since 2010 and $1.4T for all US tech IPOs since 2010."},
+{r:1,k:"tf",t:"VC during the pandemic",o:TF,a:1,
+ q:"True or false: VC activity slowed sharply after Q1 2020.",
+ ex:"It didn't. Quarterly VC IRRs and cash flows spiked, and the correction lasted under four weeks."},
+{r:1,k:"fig",t:"After the 2021 peak",fig:"deals",
+ q:"What happened to deal activity after 2021?",
+ o:["Deal counts fell sharply and the share of seed deals rose","Deal counts kept rising with AI","Deal counts fell but seed disappeared entirely","Nothing changed"],a:0,
+ ex:"From about 1,031 deals at top firms in 2021 to about 244 by 2023 YTD."},
+{r:1,k:"fig",t:"Power law across VCs",fig:"vcpower",
+ q:"What does this chart imply?",
+ o:["The power law applies to VC firms, not just start-ups","Most VC investors make at least one successful investment","Returns are spread evenly across VC firms","Big funds always outperform"],a:0,
+ ex:"The top 5% of investors take about 90% of returns. That's why manager selection matters so much in VC.",
+ w:[null,"About 62% of investors in the sample had no successful investment.","The opposite: returns are extremely concentrated.","The chart is about concentration, not fund size. Kauffman found no fund over $500M returned more than 2x net."]},
+{r:1,k:"mc",t:"The fatal VC mistake",
+ q:"According to a16z (Sept 2026), what is the fatal mistake in VC?",
+ o:["Picking the right category but the wrong company, or passing on a SpaceX, OpenAI or Stripe","Investing in too many companies that fail","Paying too high a price","Taking too long on due diligence"],a:0,
+ ex:"Losses are only about 15 cents per dollar invested; Databricks alone is 20% of a16z's AUM. \"If you pass and it succeeds, you never stop hearing about it.\" The professor backed 4 of 17 search engines and missed Google.",
+ w:[null,"Failures are expected and capped at the amount invested. Missing the winner is what hurts.","With power-law returns, overpaying for the winner matters far less than missing it.","Speed matters in hot markets, but it isn't the fatal mistake."]},
+{r:1,k:"case",t:"Skype",
+ c:"Skype was turned down by 20 VCs, sold to eBay for $2.6B (2005), written down by $1.4B, sold to PE for about $2.0B (2009), then to Microsoft for about $8.0B (2011).",
+ q:"What is the lesson?",
+ o:["Context and timing drive value","VCs are usually right to pass","Strategic buyers always overpay","Telecom is a bad sector"],a:0,
+ ex:"The same asset was worth very different amounts to different buyers at different times."},
+{r:1,k:"case",t:"Lego 1: get on the plane?",
+ c:"Jan 2003. Bob, a real-estate tycoon, calls about a 'hot deal' in LA wireless broadband that needs $150M. Your fund is $50M.",
+ q:"Do you get on the plane?",
+ o:["Yes: it's a great contact, and there's no commitment yet","No: the deal is three times the fund","No: you can't trust Bob","Only after Bob sends a business plan"],a:0,
+ ex:"Due diligence is dating; investing is marriage. About 90% of each class says yes. Still check whether the $150M can be staged.",
+ w:[null,"The most common 'no'. But meeting costs nothing, and the amount may be staged; it turned out to be $15M per county.","Bob is conflicted, so use him for access, not information. That's a reason to go and check.","You'd lose the deal to the VCs already on their way. There's no paper anyway; Mr M pitches verbally."]},
+{r:1,k:"mc",t:"Nobody got on the plane",trap:1,
+ q:"In which year did no class get on the plane?",
+ o:["2009","2008","2002","2020"],a:0,
+ ex:"Not 2008: humans process shocks with about a six-month lag. Everyone got on in 2014 (social-media IPO hype) and 2021 (QE and COVID bubble)."},
+{r:1,k:"mc",t:"The logical reason not to go",
+ q:"What would be a logical reason not to get on the plane, and why doesn't it apply here?",
+ o:["Lacking sector expertise, but you are the telecom expert","The deal is too big, but Bob will cover it","It's in LA, but you have a flight","Bob is conflicted, but he's a friend"],a:0,
+ ex:"The case is a trick: you are the NY media-tech and telecom expert, and your partner in LA knows the local network."},
+{r:1,k:"mc",t:"Using Bob",
+ q:"How should you treat Bob?",
+ o:["Use him for access, not information","Trust his numbers; he sold Mr M's house","Ignore him; angels are amateurs","Bring him onto your investment committee"],a:0,
+ ex:"He has seed money in and isn't an expert, so he's conflicted. Ask anyone pitching: \"Are you in this position?\" That's rational skepticism."},
+{r:1,k:"mc",t:"Jan 2003 context",
+ q:"In January 2003, who held negotiating leverage?",
+ o:["The VCs: post dot-com, capital was scarce","The founders: capital was plentiful","Nobody; markets were closed","The FCC"],a:0,
+ ex:"In 2026 AI it's the opposite: take the founder's terms or write a smaller check."},
+{r:1,k:"mc",t:"A 'tiny fraction' of the market",
+ q:"Mr M only needs a 'tiny fraction' of the broadband market. What should you ask, and why does it matter?",
+ o:["What is the fraction and the data source? A small slice is enough for convexity and leaves room for competitors","Nothing; small targets are always safe","Whether he can capture half the market instead","Whether the FCC will auction more spectrum"],a:0,
+ ex:"Probe the assumption. You only need small penetration to get convexity."},
+{r:1,k:"mc",t:"Assignment 1: gross vs net",
+ q:"The portfolio grows at 25% a year, but LPs earn an IRR of about 19%. What explains the gap?",
+ o:["Management fees plus carried interest","Taxes","Inflation","The GP's discount rate of 20%"],a:0,
+ ex:"Gross versus net return. Fees are charged on committed capital every year regardless of performance; carry takes 20% of profits once LPs get their $500M back.",
+ w:[null,"Taxes aren't in the model.","The model is nominal.","The 20% rate is used to value the GP's cash flows, not the LPs' return."]},
+{r:1,k:"calc",t:"Assignment 1: day-0 investment",
+ c:"$500M committed; 25% drawn in year 0. The management fee is 2.5% of committed capital, paid in advance.",
+ q:"How much is actually invested at day 0?",
+ o:["$112.5M","$125M","$121.9M","$100M"],a:0,
+ ex:"25% × $500M = $125M drawn, less the $12.5M fee (2.5% × $500M committed) = $112.5M.",
+ w:[null,"That ignores the management fee.","That charges the fee on drawn capital ($125M). Fees are on committed capital.","That deducts a 5% fee. The fee is 2.5% of committed: $12.5M."]},
+{r:1,k:"mc",t:"Fees over a fund's life",
+ q:"Over 10 years, roughly how much of committed capital do fees consume?",
+ o:["About 20–25%","About 2%","About 50%","Nothing; fees come out of profits"],a:0,
+ ex:"\"2 and 20\" means $100 becomes about $80 before any return.",
+ w:[null,"2% is one year's fee. It's charged every year.","Too high for a standard fund.","Management fees are charged on committed capital regardless of performance."]},
+{r:1,k:"tf",t:"When carry starts",o:TF,a:1,
+ q:"True or false: the GP earns 20% carry on committed capital from year 1.",
+ ex:"Carry is on profits, not committed capital, and starts only after LPs get their capital back. In Assignment 1 it starts in year 7. Many GPs also put in 1–5% of the fund as skin in the game."},
+{r:1,k:"mc",t:"Why funds keep getting bigger",
+ q:"Why do a16z and Sequoia keep raising ever-larger funds?",
+ o:["Management fees don't depend on performance, so a bigger fund earns more fees","Bigger funds always earn higher returns","LPs require it","Regulation caps the number of deals per fund"],a:0,
+ ex:"Fees scale with size. In Assignment 1 the GP's NPV (~$108M) comes from ~$12.5M of fees every year plus carry.",
+ w:[null,"Kauffman found no fund over $500M returned more than 2x net.","LPs don't require bigger funds.","There's no such cap."]},
+
+/* ───────── Class 2 ───────── */
+{r:2,k:"mc",t:"Why outside funding is hard",
+ q:"Every VC deal is a negotiation over what?",
+ o:["Wealth creation versus wealth transfer","Control versus independence","Debt versus equity","Growth versus profitability"],a:0,
+ ex:"Founders believe they alone create wealth; VCs supply capital and expertise. At first meetings the valuation gap can be hundreds of percent."},
+{r:2,k:"case",t:"Founder mindset",
+ c:"A founder says: \"My baby, my idea, my decisions.\" To you, their projections look delusional.",
+ q:"What best explains the gap?",
+ o:["They have 100% concentration risk; you risk about 5% of a fund","Founders are always irrational","They are hiding information on purpose","They don't understand finance"],a:0,
+ ex:"What looks like delusion to you is their reality. Founders who 'fake it till they make it' believe it; it isn't fake to them."},
+{r:2,k:"mc",t:"The hardest party",
+ q:"Which party is often the hardest to deal with in a VC deal?",
+ o:["The partners inside your own firm","The founder","The LPs","Other VCs"],a:0,
+ ex:"The fund is a fixed pool: your $5M is $5M less for other partners, and the lead partner gets extra points of carry, so jealousy follows. He takes each partner to lunch before the investment committee."},
+{r:2,k:"tf",t:"Insider information",o:TF,a:0,
+ q:"True or false: VCs legally trade on insider information.",
+ ex:"True. Private markets and accredited investors. That's why you reveal nothing in lobbies, lifts, trains or planes; he lost a deal when an associate discussed pricing next to a competitor."},
+{r:2,k:"tf",t:"Track record",o:TF,a:1,
+ q:"True or false: a strong track record guarantees the founder's next venture will succeed.",
+ ex:"A track record is like a historic share-price chart: an indication, not a guarantee. \"Never get married to the investment thesis.\""},
+{r:2,k:"mc",t:"Serial entrepreneurs",
+ q:"Serial entrepreneurs raise faster, with less dilution and higher valuations. When does that advantage mostly disappear?",
+ o:["When they move to a different sector","When they are over 40","When they raise from new VCs","When their last exit was an acquisition"],a:0,
+ ex:"The key test is serial in the same sector (the King's Quest and Zelda story). Elon Musk is the exception, because all his ventures are 'hard engineering'."},
+{r:2,k:"case",t:"Founders who failed",
+ c:"A founder's last company failed spectacularly. Their new idea looks strong.",
+ q:"Would you back them?",
+ o:["Yes, if the new idea is good: ask why they failed and whether the new idea repeats it","No, a failure is a permanent red flag","Only with a full ratchet","Only if they put in more of their own money"],a:0,
+ ex:"Nook → Peloton: the same Barnes & Noble team bundled hardware and content twice. Without Nook, probably no Peloton. The question is forward risk."},
+{r:2,k:"mc",t:"Founder traits",trap:1,
+ q:"Most important founder trait: charisma, technical skill or grit?",
+ o:["Grit is a minimum condition, not a differentiator","Grit, clearly","Charisma","Technical skill"],a:0,
+ ex:"The class mostly says grit (since Duckworth and COVID). He treats it as table stakes and prefers repeat founders in the same sector."},
+{r:2,k:"mc",t:"Four forward-looking components",
+ q:"Which is NOT one of the four forward-looking components?",
+ o:["Founder's age","Uncertainty","Asymmetric information","Nature of assets"],a:0,
+ ex:"The four are uncertainty, asymmetric information, nature of assets and market conditions."},
+{r:2,k:"fig",t:"Moving left on the spectrum",
+ fig:{type:"table",title:"Where each company sits",head:["Component","Window maker (50 yrs)","Hard-disk maker","Invisible Wires"],rows:[["Uncertainty","Low","Medium","High"],["Asymmetric information","Low","Medium","High"],["Nature of assets","Tangible","Mixed","Intangible"],["Market conditions","Less important","Important","Important"]]},
+ q:"What is your job in due diligence relative to this table?",
+ o:["Move the start-up a little to the left on each row","Move it to the right to justify a higher valuation","Prove it belongs in the window-maker column","Ignore the table; only the market matters"],a:0,
+ ex:"You can't guarantee anything, but small findings help. Spectrum is both a moat and residual value. The 'Hail Mary' can be in the outcome, never in the investment process.",
+ w:[null,"Right means more risk.","A start-up will never look like a 50-year-old manufacturer.","Market conditions are only one of four components."]},
+{r:2,k:"mc",t:"Black Swan",
+ q:"Which is a Black Swan: Google, the pandemic, both or neither?",
+ o:["Both","Google","The pandemic","Neither"],a:0,fixed:1,
+ ex:"Taleb: unpredictable, massive impact, explained after the fact as if it were predictable. It can be the left tail (GFC, COVID) or the right tail (Google). VC wants maximum exposure to positive Black Swans."},
+{r:2,k:"mc",t:"Hockey sticks",
+ q:"About half of pitches show a hockey-stick revenue chart with no probability adjustment. How does the professor react?",
+ o:["It makes him less likely to invest","It's expected; he ignores it","It's a sign of a strong founder","He asks them to remove it"],a:0,
+ ex:"A single venture's cash flows end up better than projected, as projected, or 'crash and burn', and most crash."},
+{r:2,k:"case",t:"Hotmail",
+ c:"VCs funded a database company built to compete with Oracle. The engineers' internal email tool became Hotmail. Founder Sabeer Bhatia: \"We thought we could raise enough money on our original database plan that we wouldn't have to tell anyone about the email idea.\"",
+ q:"What is the fix VCs now use?",
+ o:["Ring-fencing: the term sheet covers the company and any and all associated products developed during the investment period","Board control","A full-ratchet anti-dilution clause","Monthly audited reports"],a:0,
+ ex:"The documents covered only the database, so the VCs couldn't easily claim the email product. Slack was a pivot out of a computer game, and the professor's firm captured it because of the ring-fence.",
+ w:[null,"Control is rarely the answer in VC, and it wouldn't have given legal rights to the product.","Anti-dilution protects value in a down round. It has nothing to do with a hidden product.","Information rights help, but the problem was legal scope."]},
+{r:2,k:"case",t:"Agency problems",
+ c:"A VC refuses to join a company's future rounds to squeeze the founders on price.",
+ q:"Which agency problem is this, and what is the fix?",
+ o:["Hold-up; fixed by covenants","Adverse selection; fixed by screening","Moral hazard; fixed by sharing in outcomes","Black Swan; fixed by scenarios"],a:0,
+ ex:"Adverse selection (lemons, lying) is fixed by screening and due diligence; moral hazard (cheating) by sharing in outcomes; hold-up (opportunism) by covenants. In VC there is asymmetric information 100% of the time.",
+ w:[null,"Adverse selection is the founder hiding bad quality before the deal.","Moral hazard is cheating after the deal.","A Black Swan is an extreme event, not an agency problem."]},
+{r:2,k:"mc",t:"Intangible assets",
+ q:"What was Spirit Airlines' most valuable asset?",
+ o:["Its customer data","Its planes","Its landing slots","Its brand"],a:0,
+ ex:"It was bought for ad targeting. Most of the S&P 500's value is now intangible, and Nortel's patents were worth over $10B after the company collapsed. Intangibles are hard to value and secure but increasingly the most valuable."},
+{r:2,k:"mc",t:"VC as an asset class",
+ q:"Under Modern Portfolio Theory, what justifies an allocation to VC?",
+ o:["Low correlation with the market benchmark","Daily liquidity","Lower volatility than bonds","Guaranteed top-quartile returns"],a:0,
+ ex:"Cambridge Associates: 1980–99 VC returned 23.5% against the S&P's 18.2%, with Sharpe ratios of 1.77 versus 0.73."},
+{r:2,k:"case",t:"Cold vs hot markets",
+ c:"Capital is scarce and markets are falling.",
+ q:"How do VCs typically behave?",
+ o:["Keep founders waiting, short leashes, tough terms, low valuations","Club together and chase deals","Pay up to win allocation","Let founders set the terms"],a:0,
+ ex:"In a hot market VCs 'club' and founders think 'build it and they will come'. Fund-raising peaks at market peaks: about $500B raised in the five years to 2000."},
+{r:2,k:"fig",t:"Manager selection",fig:"disp",
+ q:"Why is the spread so much wider in VC than in bonds?",
+ o:["Knowledge arbitrage, asymmetric information and illiquidity","VC managers charge higher fees","Bond managers are better trained","VC funds are smaller"],a:0,
+ ex:"In public large-cap there's no knowledge edge, so the spread is narrow. In the updated chart, bottom-quartile VC and hedge funds are negative. As VC grows, the big get bigger: Sequoia and a16z win through reputation, capital and first look.",
+ m:"In alternatives, manager selection is vital because the spread is so wide. In public equity, picking the right manager gets you a point or two."},
+{r:2,k:"mc",t:"J-curve",
+ q:"Why are textbook J-curve returns negative early in a fund's life?",
+ o:["Fee drag plus early 'lemons' failing first","Winners are sold first","Interest rates are high early on","LPs withdraw capital early"],a:0,
+ ex:"Then returns turn positive in the second half as exits come. LPs are told to wait. Across several funds, J-curves blend into a portfolio curve."},
+{r:2,k:"fig",t:"N-curve",fig:"jn",trap:1,
+ q:"Which line matches what the Kauffman Foundation (2012) found, and why?",
+ o:["Line 2: reported returns peak around month 16, when GPs start raising their next fund","Line 1: the textbook J-curve holds","Line 2: early investments are the best ones","Line 1: fees fall over time"],a:0,
+ ex:"At month 16 nothing is realized; the marks are set by the GPs themselves. The median time to the first capital call of the next fund is 26.6 months. The fund dies in year 10, so GPs need good early numbers.",
+ w:[null,"Line 1 is the textbook J-curve that Kauffman rejected.","The early peak reflects GP marks, not realized returns.","Line 1 is the J-curve; fees don't explain Kauffman's finding."]},
+{r:2,k:"tf",t:"Kauffman: VC vs public markets",o:TF,a:1,
+ q:"True or false: Kauffman found that VC beats public markets by 3–5% a year.",
+ ex:"It doesn't. Kauffman also found the average VC fund barely returns capital after fees, and in 8 of 12 vintage years from 1997–2009 the median fund had a negative IRR. The professor refused to argue against Kauffman: \"It's right; I run a fund that does this.\""},
+{r:2,k:"mc",t:"Kauffman's findings",
+ q:"Which is one of Kauffman's findings?",
+ o:["No fund over $500M returned more than 2x net","The average VC fund returns 3x after fees","Fund lives rarely exceed 10 years","Top-quartile and vintage-year reporting is reliable"],a:0,
+ ex:"The five findings: misleading top-quartile and vintage reporting; the average fund barely returns capital after fees; VC doesn't beat public markets by 3–5%; fund lives often run 12–15 years; no fund over $500M returned more than 2x net.",
+ w:[null,"The average fund barely returns capital after fees.","Fund lives often run 12–15 years.","Kauffman called that reporting misleading."]},
+{r:2,k:"mc",t:"Kauffman's recommendations",
+ q:"Which is one of Kauffman's recommendations to LPs?",
+ o:["Benchmark VC against a public market equivalent such as the Russell 2000","Keep a fixed VC allocation","Pay GPs more management fees","Trust the J-curve"],a:0,
+ ex:"The five: abolish VC mandates; reject the J-curve assumption; open the black box of GP economics; pay for performance (2-and-20 rewards size); benchmark against a public market equivalent."},
+{r:2,k:"mc",t:"AI and the J-curve",
+ q:"Is the J-curve still relevant with AI-era VC?",
+ o:["AI makes J-curve expectations worse","AI has fixed the J-curve","AI made it irrelevant because returns are realized faster","It's unchanged"],a:0,
+ ex:"Investors now expect markups within six months: higher round prices, higher reported IRR, more capital, bigger funds, higher prices again, with no realized-return check. \"A power law cannot be obvious\", yet everything is priced as an outlier. The bumper sticker: \"Please God, just one more bubble.\""},
+{r:2,k:"mc",t:"Fund economics",
+ q:"Which set of terms is typical for a VC fund?",
+ o:["2.0–2.5% fee, 20% carry, 8–10% hurdle","1% fee, 10% carry, no hurdle","2% fee, 50% carry, 20% hurdle","No fee, 30% carry"],a:0,
+ ex:"Capital is drawn through capital calls. LPs are qualified investors: pensions, endowments and wealthy individuals."},
+{r:2,k:"mc",t:"Lego 2: $150M becomes $15M",
+ q:"Bob said $150M; Mr M asked for $15M per county of 100,000 homes, staged. Why does that matter so much?",
+ o:["A donut now costs $15M, not the whole $50M fund: it's survival risk","It lowers the valuation","It means Mr M is less ambitious","It removes the need for due diligence"],a:0,
+ ex:"Bob's information was wrong because he isn't the founder. Staging changes the size of the possible loss."},
+{r:2,k:"mc",t:"The spectrum licenses",
+ q:"Why are Mr M's two spectrum licenses so important?",
+ o:["They're a scalable constraint, a moat and downside protection","They guarantee customers","They let Mr M skip regulation entirely","They can be pledged to the FCC for cash"],a:0,
+ ex:"No growth without licenses, but only he holds them: held for 20 years, not auctioned, no others in the area. If the business fails you can resell the spectrum, so it isn't a donut."},
+{r:2,k:"tf",t:"Signing the NDA",o:TF,a:0,
+ q:"True or false: you should sign a generic NDA before the pitch.",
+ ex:"True. Most NDAs have little teeth in court. Don't let it block access."},
+{r:2,k:"mc",t:"A pitch with no paper",
+ q:"Mr M pitches verbally, with no paper. Good, bad or indifferent?",
+ o:["Normal for a serial founder: paper anchors you to numbers","A red flag: he's hiding something","Irrelevant","Bad: first-timers do better"],a:0,
+ ex:"First-timers almost always bring paper as a defense."},
+{r:2,k:"mc",t:"Go in pairs",
+ q:"Why does the professor always go to pitch meetings in pairs?",
+ o:["One asks questions and takes notes; the other watches how defensive the answers are","To split the travel cost","Because one must be a lawyer","To outnumber the founder"],a:0,
+ ex:"Reading the founder matters as much as the content."},
+{r:2,k:"case",t:"The lobby",
+ c:"You arrive at Mr M's office at 3pm and wait in the lobby.",
+ q:"What should you do?",
+ o:["Read the sign-in book, chat to the receptionist and watch who walks past","Read a magazine and relax","Review your notes out loud with your partner","Phone your office about pricing"],a:0,
+ ex:"The sign-in book shows competing VCs; back-to-back meetings confirm the deal is hot, and charisma that survives a full day signals stamina. His boss still sends him a magazine subscription every Christmas, 22 years later, for reading one in a lobby.",
+ w:[null,"That's the mistake his boss never let him forget.","Never talk where others can hear.","He lost a deal when an associate discussed pricing next to a competitor."]},
+{r:2,k:"mc",t:"Moto in the room",
+ q:"You see Moto employees leaving Mr M's room. What does it signal?",
+ o:["A possible exit, but is Mr M already negotiating a sale or IP deal?","Nothing; it's a routine supplier visit","The deal is dead","Moto will lead the round"],a:0,
+ ex:"A corporate may want the technology, not a financial return."},
+{r:2,k:"mc",t:"'Vultures'",
+ q:"Mr M 'hates bureaucracy and vultures'. How did the professor open meetings like this?",
+ o:["With his 8 patents, not his VC title, showing curiosity and humility","With his fund's track record","With a term sheet","With a list of competing deals"],a:0,
+ ex:"VCs and bankers are disliked on the West Coast."},
+{r:2,k:"mc",t:"Judgment vs numbers",
+ q:"Is VC about judgment or numbers?",
+ o:["Judgment","Numbers","Equal parts","Neither; it's about luck"],a:0,
+ ex:"There's no data at seed, and AI can't replace judgment (gut feel). Psychology, trust, jealousy and FOMO matter as much as numbers."},
+{r:2,k:"mc",t:"The most important VC skill",
+ q:"Most important VC skill: capital, expertise, or connections and reputation?",
+ o:["Connections and reputation","Capital","Expertise","All equal"],a:0,
+ ex:"Capital is the least important; expertise matters only through access. Matt Levine: the essential skill is getting access to the right deals, not picking them."},
+{r:2,k:"tf",t:"Can an LLM pick winners?",o:TF,a:1,
+ q:"True or false: ChatGPT or another LLM can predict which start-ups will succeed.",
+ ex:"LLMs are trained on normal distributions and can't predict power-law outliers. This was the student answer he praised in class 2."},
+{r:2,k:"tf",t:"Rating VCs",o:TF,a:1,
+ q:"True or false: there is a central database that tells you which VCs are good.",
+ ex:"One existed but was pulled by VCs. Today there are only review sites, including reviews of individual VC partners."},
+{r:2,k:"tf",t:"Government's role",o:TF,a:0,
+ q:"True or false: the government's role in VC has increased.",
+ ex:"Spectrum, TikTok, AI exports, gig-worker rules. Regulators are both a barrier to entry and a risk."},
+{r:2,k:"tf",t:"Threats to VC",o:TF,a:0,
+ q:"True or false: VC as an industry has been threatened since the GFC.",
+ ex:"By hedge funds, mutual funds, corporate VC, crowdfunding, ICOs (after the JOBS Act 2012), SPACs and direct listings."},
+{r:2,k:"mc",t:"2022 and VC",
+ q:"How important were 2022 public-market returns to VC?",
+ o:["Briefly important, then forgotten","Decisive for years","Irrelevant","They caused a permanent shift away from AI"],a:0,
+ ex:"It was the first correction since 2009. Markdowns lagged by 3–6 months, due diligence mattered again for about six months, and the losses were tiny relative to gains since QE1."},
+
+/* ───────── Class 3 ───────── */
+{r:3,k:"mc",t:"A single number?",
+ q:"In a start-up valuation, is there a single number? A right answer?",
+ o:["A single number yes; a right answer no","Both yes","Both no","A right answer yes; a single number no"],a:0,fixed:1,
+ ex:"There is the agreed number at that point in time, which comes from a 'range of reasonableness' and negotiating power. Whether it was right is known only later."},
+{r:3,k:"mc",t:"Mark-to-model",
+ q:"Why can the same start-up carry different marks at different VCs at the same time?",
+ o:["Each VC uses its own model; it's mark-to-model, not mark-to-market","One of them is breaking the law","Marks follow the stock market","Marks depend on fund size"],a:0,
+ ex:"LPs can't spend unrealized marks, only realized cash. Sequoia tells LPs to ignore unrealized gains."},
+{r:3,k:"mc",t:"Create the box",
+ q:"'Create the box, then think outside it.' What does the VC add to the entrepreneur's drivers?",
+ o:["Other markets and products, fixed vs variable costs, financing stages and milestones, its own risk tolerance","The founder's salary","A higher growth rate","Public-company comps for today"],a:0,
+ ex:"Together they form a 3-D box that shows the key sensitivities and break-even points, with exits on top."},
+{r:3,k:"mc",t:"When valuation is done",
+ q:"When is valuation done: up front, continuously, or at exit?",
+ o:["Continuously","Up front","At exit","Only when a new round is raised"],a:0,
+ ex:"Up front (invest, at what price), during (fund more or liquidate, protect against dilution) and at exit (trade sale or IPO, how much to keep). It's iterative across the VC cycle."},
+{r:3,k:"case",t:"DoubleClick",
+ c:"VC entered at about $1.50/share (1996), IPO at $4.25 (1998), high of $135.25 (Jan 2000), low of $4.50 (2004). Hellman & Friedman took it private at about $8.50 (2005) and sold it to Google at about $24 (2007).",
+ q:"What does the case show?",
+ o:["Each investor type has a different time horizon, and more data doesn't automatically mean a higher valuation","Public markets always value companies correctly","VCs should hold after the IPO","PE always beats VC"],a:0,
+ ex:"VCs exited fully in the bubble with an IRR above 1,000%. Public long-term holders lost. VC and PE both earned IRRs above 75%."},
+{r:3,k:"fig",t:"How VCs value",fig:"methods",trap:1,
+ q:"Which method is actually used for early-stage VC?",
+ o:["Gut feel","DCF","Real options","Simulation"],a:0,
+ ex:"\"We pretend.\" Market analysis and multiples are used more widely across stages, but at early stage the honest answer is gut feel.",
+ w:[null,"DCF needs history and stable cash flows; it fits year 5+.","Only 10% use options; he never does.","Only 22% use simulation."]},
+{r:3,k:"mc",t:"The VC method",
+ q:"Which formal valuation method is most common in years 0–2?",
+ o:["The venture capital method","DCF","Comparable multiples","Real options"],a:0,
+ ex:"Price = terminal value × investor % ÷ (1+r)^n. It ignores negative early cash flows and uses one exit value and one high rate. All three main methods need an exit timeframe, a discount rate and a terminal value.",
+ w:[null,"DCF is for year 5+ once there's history.","Comps are used near exit.","Real options are for biotech and natural resources."]},
+{r:3,k:"mc",t:"DCF's weakness",
+ q:"What is the main weakness of DCF for a start-up?",
+ o:["Too many variables, the terminal value dominates, and the cost of capital is hard to pin down","It gives only relative value","It ignores the time value of money","It can't handle positive cash flows"],a:0,
+ ex:"It's 'theoretically pure' and gives an absolute value, but it fits only once there's history, around year 5+."},
+{r:3,k:"mc",t:"Comps' weakness",
+ q:"What is wrong with comparable multiples for a young start-up?",
+ o:["They assume exit now, ignore intangibles and can produce negative multiples","They're too slow to calculate","They require a discount rate","They overvalue tangible assets"],a:0,
+ ex:"'Quick and easy' relative value. Most useful near exit."},
+{r:3,k:"mc",t:"Real options",
+ q:"Where are real options actually used?",
+ o:["Biotech (FDA pathways) and natural resources (drilling)","Consumer apps","SaaS","Every seed deal"],a:0,
+ ex:"Volatility and outcomes are hard to estimate, and the professor never uses it. Staging itself is a 'wait-and-see' option, but uncertainty must fall over time or later decisions are no better than current ones."},
+{r:3,k:"mc",t:"Modelling similarity",trap:1,
+ q:"What is the biggest similarity between early-stage VC modelling and hedge fund, buyout or growth modelling: convexity, project length or stability of variables?",
+ o:["None of the above","Convexity","Project length","Stability of variables"],a:0,fixed:1,
+ ex:"It's a new order of difficulty: no convexity parity, no stable variables, a different horizon."},
+{r:3,k:"mc",t:"David Beer's rule of thumb",
+ q:"According to David Beer's rule of thumb, what is a venture worth once it has sold to real customers?",
+ o:["About $750K","About $15K","About $150K","About $7.5M"],a:0,
+ ex:"Just an idea: about $15K. With a credible team: about $150K. Sold to real customers: about $750K."},
+{r:3,k:"calc",t:"Pre and post money",
+ c:"You invest $10 for 10% of the company.",
+ q:"What are the post-money and pre-money valuations?",
+ o:["Post $100, pre $90","Post $90, pre $100","Post $110, pre $100","Post $100, pre $110"],a:0,
+ ex:"Post-money = investment ÷ % ownership = $10 ÷ 10% = $100. Pre-money = post − investment = $90. The only certain number is your $10 (and zero).",
+ w:[null,"Reversed: post-money includes the new money, so it's the larger number.","That adds the investment to a pre-money of $100, but the 10% defines the post-money.","Pre-money is post minus the investment, not plus."]},
+{r:3,k:"calc",t:"Assignment 2a: ownership",
+ c:"Invest $10M. Profits reach $20M in 5 years; exit P/E is 20; required return is 50%.",
+ q:"What minimum ownership do you need?",
+ o:["About 19%","About 3.75%","About 7.6%","About 2.5%"],a:0,
+ ex:"Terminal value = $20M × 20 = $400M. Required future value = $10M × 1.5^5 = $75.9M. Ownership = 75.9 ÷ 400 ≈ 19%.",
+ w:[null,"That uses a simple return ($10M × 1.5 = $15M). The money is locked in for 5 years, so compound: 1.5^5.","That uses the 25% growth rate as the discount rate. A single deal needs more because winners pay for losers.","That's $10M ÷ $400M with no required return at all."],
+ m:"Ownership = Investment × (1+r)^n ÷ Terminal value."},
+{r:3,k:"calc",t:"Assignment 2a: pre-money",
+ c:"Same deal: terminal value $400M, 5 years, 50% required return, $10M invested.",
+ q:"What is the pre-money valuation?",
+ o:["About $42.7M","About $52.7M","$390M","About $62.7M"],a:0,
+ ex:"PV of exit = 400 ÷ 1.5^5 = $52.7M = post-money. Pre-money = 52.7 − 10 = $42.7M.",
+ w:[null,"That's the post-money.","That subtracts $10M from the undiscounted exit value.","That adds the investment instead of subtracting it."]},
+{r:3,k:"mc",t:"Double counting risk",
+ q:"What is 'double counting risk' in the VC method?",
+ o:["Using a very high discount rate and also demanding extra ownership for the same risk","Counting the same investor twice on the cap table","Using two valuation methods","Applying a liquidation preference twice"],a:0,
+ ex:"A common mistake from the suggested solution. Also state the implicit assumptions: P/E stays at 20, no further dilution, normalized after-tax earnings."},
+{r:3,k:"calc",t:"Sample exam: discount rate",trap:1,
+ c:"The 10-year Treasury fell from 4% to 2%; the sector beta rose from 1.5 to 2.0; the fund's objective is top quartile, about 25–30% on total funds.",
+ q:"What discount rate should you use for this early-stage VC opportunity?",
+ o:["About 40–50%","About 16%","About 25–30%","About 2%"],a:0,
+ ex:"The first two bullets are mostly irrelevant: CAPM inputs were built for liquid, listed, normally distributed companies. The 25–30% target is for the whole fund, winners and losers together, so one investment must clear more. The survey average at seed is about 42%; he also cites 50%.",
+ w:[null,"That's mechanical CAPM: 2% + 2.0 × ~7%. Say it and say it's far too low.","That's the fund target. A single deal needs more because winners pay for losers.","That's just the risk-free rate."],
+ m:"Those models assume history, liquidity and normality; a new venture has none of them."},
+{r:3,k:"fig",t:"Capital market line",fig:"cml",
+ q:"Why does VC sit at about 42%?",
+ o:["The premium covers systematic risk, illiquidity and the value the VC adds, at the riskiest stage","Because VCs charge 2 and 20","Because CAPM gives that number","Because the risk-free rate is high"],a:0,
+ ex:"61% of VCs self-report hurdles of 20–40% and 27% report 40–60%. The target falls by stage: highest at seed, lower toward IPO."},
+{r:3,k:"calc",t:"Back-solving beta",
+ c:"Lego 3: risk-free 5%, market risk premium 7%. You want a 40% discount rate.",
+ q:"What beta would CAPM need?",
+ o:["5","2.5","5.7","0.2"],a:0,
+ ex:"β = (40 − 5) ÷ 7 = 5. \"Have you ever seen a beta of 5?\" The beta is irrelevant here; CAPM was built for liquid, listed, long-history companies.",
+ w:[null,"2.5 is the sector beta in the case, which gives only about 22%.","That's 40 ÷ 7, forgetting to subtract the risk-free rate.","That's the formula upside down."]},
+{r:3,k:"mc",t:"Discount rate by stage",
+ q:"How does the required return change as a venture matures?",
+ o:["About 50% at seed, about 25% by year 5, close to CAPM by year 7","Constant at about 30%","Rises over time as the company grows","About 10% throughout"],a:0,
+ ex:"Risk and data change with stage: seed, beta, customer acquisition, critical mass, IPO."},
+{r:3,k:"fig",t:"Winners pay for losers",fig:"scen",
+ q:"The portfolio earns 28%. Why does the VC price each deal at about 50%?",
+ o:["Because most deals miss plan, each deal must be priced as if it will hit plan for the portfolio to reach ~28%","Because the fee is 50%","Because half the deals fail","Because the fund lasts 10 years"],a:0,
+ ex:"Half the deals go sideways and a quarter lose money. Pricing every deal at 28% would leave the portfolio far below target.",
+ m:"Winners pay for losers: a single deal's hurdle (about 40–50%) far exceeds the fund target (about 25–30%)."},
+{r:3,k:"fig",t:"Time vs multiple",fig:"irr",
+ q:"A deal returns 3x. What happens to the annual return if it takes 7 years instead of 3?",
+ o:["It falls from about 44% to about 17%","It stays the same; the multiple is the same","It falls from about 73% to about 25%","It rises because the company is bigger"],a:0,
+ ex:"Same multiple, very different IRR. Time is one of the components of return.",
+ w:[null,"The multiple ignores time; IRR doesn't.","73% is 3x in 2 years and 25% is 3x in 5 years.","The multiple is fixed at 3x in both cases."]},
+{r:3,k:"mc",t:"Best return",trap:1,
+ q:"Which is best: 10x in 10 years, 5x in 5 years, or 2x in 2 years?",
+ o:["2x in 2 years","5x in 5 years","10x in 10 years","They're all equal"],a:0,
+ ex:"2x in 2 years ≈ 41%, 5x in 5 years ≈ 38%, 10x in 10 years ≈ 26%. 10x in 10 years barely beats the liquid Nasdaq (about 12–15%) for a 10-year lock-up: it \"isn't going to cut it\"."},
+{r:3,k:"calc",t:"5x in 10 years",
+ q:"A deal promises 5x in 10 years. Roughly what is the annual return?",
+ o:["About 17%","About 50%","About 26%","About 38%"],a:0,
+ ex:"He says never take it. By contrast 10x in 5 years is about 58%, which he likes.",
+ w:[null,"That divides the multiple by the years (a simple return). Returns compound.","That's 10x in 10 years.","That's 5x in 5 years."]},
+{r:3,k:"calc",t:"Required multiple",
+ q:"What multiple do you need over 5 years to earn a 50% IRR?",
+ o:["About 7.6x","About 3.5x","About 2.5x","About 5x"],a:0,
+ ex:"1.5^5 ≈ 7.6. By contrast a 20% IRR over 5 years needs only about 2.5x. Compounding makes the curve convex.",
+ w:[null,"That's 1 + 5 × 50%, a simple return.","That's what a 20% IRR needs over 5 years.","5x over 5 years is about 38%."]},
+{r:3,k:"fig",t:"Facebook return profile",fig:"fb",
+ q:"What does this table show about later rounds?",
+ o:["Later rounds carry less risk and earn lower returns","Later rounds always earn the most","Angels take the least risk","Round size doesn't affect returns"],a:0,
+ ex:"One of his students invested at Round A in 2012 and now owns a vineyard."},
+{r:3,k:"mc",t:"The donut scenario",
+ q:"Bessemer's LinkedIn memo included a $0 'donut' scenario with 0.5% probability. Why include it, and why keep it small?",
+ o:["Include it for humility; keep it small or the investment committee won't give you money","It's legally required","Because the donut was the base case","To lower the valuation"],a:0,
+ ex:"About 9 scenarios from $0 to $2.1B; expected multiple ~1.7x, weighted IRR ~23%. LinkedIn sold for about $26B, roughly 10x the high case: the best kind of mistake. He decides on the middle of the distribution; the tails are humility and imagination."},
+{r:3,k:"mc",t:"How many scenarios",
+ q:"How many valuation scenarios should you build for a start-up?",
+ o:["More than 10","Three: high, base, low","One base case","Two: success or failure"],a:0,
+ ex:"High, base, low, donut, home run and more. Even then they can be wrong by over 10x, as LinkedIn showed. Extreme scenario modelling has become the standard scenario."},
+{r:3,k:"fig",t:"The turkey problem",fig:"turkey",trap:1,
+ q:"What is the most likely next data point?",
+ o:["None of these: it collapses to zero","It continues up at the same slope","It levels off","It dips slightly, then recovers"],a:0,
+ ex:"It's a turkey's weight before Thanksgiving. Prediction addiction: steady history says nothing about a collapse. Examples include COVID for hotels and travel, MySpace losing 2.5M users in 3 weeks, and Theranos, FTX and WeWork going from a 100x paper mark to zero. He got this wrong in his own interview."},
+{r:3,k:"mc",t:"Dangerous Excel formulas",trap:1,
+ q:"Hardest assumption in modelling start-ups: constant growth (1+g)^t, the perpetuity 1/(r−g), or neither?",
+ o:["Neither: none of them can be assumed","(1+g)^t","The perpetuity","Both equally"],a:0,fixed:1,
+ ex:"g isn't constant and many start-ups don't survive (perpetuity = 0). r, g and t are all non-static."},
+{r:3,k:"case",t:"The water-bottle trick",
+ c:"A recruiter tells you: \"We're a unicorn.\"",
+ q:"What should you ask?",
+ o:["How much capital was actually invested, and over how many rounds?","Which unicorn index they're in","Whether they're profitable on ARR","When the IPO is"],a:0,
+ ex:"Pay $1 for 0.0000001% and you have 'a unicorn'. Ask for the valuation-to-funding ratio. Each start-up has only about a 0.00006% chance of becoming a unicorn."},
+{r:3,k:"mc",t:"Why unicorns multiplied",
+ q:"Which was NOT one of the reasons unicorns multiplied?",
+ o:["Stricter GAAP rules for private companies","FOMO","No consistent financial definitions","Everyone wants to be in the club"],a:0,
+ ex:"FOMO, no consistent (non-GAAP) definitions, and ego, hiring and funding momentum. ZIRP-icorns were born of zero rates, up to two a day at the peak, and are now AI-only, with many zombies."},
+{r:3,k:"mc",t:"'Fuzzy, insane math'",
+ q:"How were high headline unicorn valuations often achieved (Bloomberg 2015)?",
+ o:["In exchange for protective terms such as liquidation preferences and ratchets, at the expense of employees and earlier investors","By using DCF instead of comps","By lowering the discount rate","By selling more common stock"],a:0,
+ ex:"\"These big numbers almost don't matter\" (Komisar, Kleiner). That's the bridge to class 4: tell me your price and I'll tell you my terms."},
+{r:3,k:"mc",t:"ARR becomes 'ERR'",
+ q:"Why does the professor joke that ARR has become 'ERR'?",
+ o:["It's often neither annual, nor recurring, nor revenue","It's an error in GAAP","It measures expected returns","It's only used by ERP companies"],a:0,
+ ex:"The new fake math. Do VCs care about profitability?"},
+{r:3,k:"mc",t:"Concentration in private markets",
+ q:"The Magnificent 7 are 33% of the S&P 500. What share of US unicorn value is in the AI equivalent?",
+ o:["About 43%: private markets are more concentrated","About 10%","About 33%, the same","About 85%"],a:0,
+ ex:"Private markets are even more concentrated than public ones."},
+{r:3,k:"mc",t:"Valuations since the pandemic",trap:1,
+ q:"How have private valuations changed since the pandemic?",
+ o:["Higher, but only in AI","Higher across all sectors","Lower across all sectors","Flat"],a:0,
+ ex:"About 85% of VC dollars go to AI; AI valuations are up 10–15x while most other sub-sectors are flat or seeing down rounds. Always answer by sector; the same applies to 'is unicorn valuation growth rising?'",
+ m:"It depends on the sector and the context."},
+{r:3,k:"mc",t:"What drives value",
+ q:"For a given investment, value is proportional to what?",
+ o:["Multiple and uncertainty, and inversely to the investment dollars needed","Revenue only","The number of investors","The founder's ownership"],a:0,
+ ex:"Staging and risk matter. Value evolves: the first post-money becomes the next round's pre-money, up or down, and marks follow the latest round."},
+{r:3,k:"mc",t:"Portfolio composition",
+ q:"How does Fred Wilson target his portfolio?",
+ o:["1/3 lose everything, 1/3 return capital, 1/3 generate the returns","80/15/5","All winners","Half and half"],a:0,
+ ex:"Buffett's version: 'innovators, imitators and idiots' (Uber, Lyft, Wag, Cherry). Few VCs return more than 3x (about 12% IRR over 10 years)."},
+{r:3,k:"calc",t:"The doubling penny",
+ q:"$1M now, or a penny that doubles every day for 30 days?",
+ o:["The penny: about $5.4M","$1M","They're about equal","The penny: about $10.7M"],a:0,
+ ex:"$0.01 × 2^29 ≈ $5.4M. But the penny only passes $1M in the last 3 days. That's the power of compounding, and why survival matters.",
+ w:[null,"The penny ends far higher.","The penny ends about five times higher.","That doubles 30 times instead of 29: on day 1 you already have the penny."]},
+{r:3,k:"calc",t:"Lego 3: break-even",
+ c:"Each county costs $15M. A home pays $50/month on a 2-year contract.",
+ q:"How many homes are needed to break even?",
+ o:["12,500","25,000","300,000","100,000"],a:0,
+ ex:"$50 × 12 × 2 = $1,200 per home. $15M ÷ $1,200 = 12,500 homes, 12.5% of the 100,000 passed. The upside roughly doubles with $30–50 of VoIP at zero marginal cost.",
+ w:[null,"That uses one year of revenue ($600) instead of the 2-year contract.","That uses one month of revenue.","That's the number of homes passed."]},
+{r:3,k:"calc",t:"Lego 3: money truly at risk",
+ c:"The $150 cost per home splits into $100 fixed (spectrum, marketing, network) and $50 variable (only if the home signs). A county is 100,000 homes.",
+ q:"How much is truly at risk?",
+ o:["About $10M","$15M","$5M","$0"],a:0,
+ ex:"100,000 × $100 fixed. It still isn't a donut, because the spectrum can be resold. With $2M of cash left from the $7.5M, the raise is about $8M.",
+ w:[null,"That ignores the split: the $50 is spent only if a home signs.","That's the variable part.","The spectrum protects you from a donut, but money is still at risk."]},
+{r:3,k:"mc",t:"Who asked you to value it",
+ q:"In Lego 3, Mr M asked you to do the valuation. Why does that matter?",
+ o:["You risk negotiating with yourself","It means he trusts you completely","It saves you due diligence","It makes the valuation binding"],a:0,
+ ex:"Later, on terms, he wrote the term sheet himself to anchor you."},
+{r:3,k:"mc",t:"Who carries more risk",
+ q:"Who carries more risk in Invisible Wires: Mr M or the VC?",
+ o:["Mr M by percentage, but the VC carries career risk","Only Mr M","Only the VC","Neither; risk is shared equally"],a:0,
+ ex:"Mr M has 100% of his wealth in it, but your career convexity depends on him not failing: a donut can end a career."},
+{r:3,k:"mc",t:"Key driver",
+ q:"What is the key driver for Invisible Wires: revenue, cost or capex?",
+ o:["All of them","Revenue","Cost","Capex"],a:0,fixed:1,
+ ex:"Revenue captures the upside; cost and capex set the size of the donut."},
+{r:3,k:"cmt",t:"Disclosing the VoIP upside",
+ c:"You've found $30–50/month of VoIP revenue at no extra cost. Mr M never mentioned it. Your partner says: \"Never disclose it; it only raises his valuation.\"",
+ q:"What did the professor do, and why?",
+ o:["He disclosed it to build trust, because something smelled funny; it earned 5+ deals over 20 years","He kept it secret for leverage","He used it to demand more equity","He walked away from the deal"],a:0,
+ ex:"Mr M replied the technology wouldn't support it for about 5 years. Lesson: build the scenarios first, then decide how much to disclose. Trust is the long-game asset in a word-of-mouth business.",
+ w:[null,"That's what most students would do, and what his partner screamed for.","That would have destroyed the trust he was building.","The finding raised the deal's upside; there was no reason to walk."]},
+{r:3,k:"fig",t:"Lego 3: the negotiating zone",fig:"iw",
+ q:"Why does the VC's base case use about 8x revenue for the exit multiple when Moto trades at 4–5x?",
+ o:["Invisible Wires is growing faster than Moto","Telcos trade at 8x","Mr M asked for it","To lower the valuation"],a:0,
+ ex:"The model gives an NPV of about $20.3M and, by the VC method, about 38% ownership for $8M (about 4.8x the money). The ranges from both sides form the negotiating zone."},
+
+/* ───────── Class 4 ───────── */
+{r:4,k:"mc",t:"What a term sheet is",
+ q:"What is a term sheet, in the professor's words?",
+ o:["Legal scenario analysis about the future","The final purchase agreement","A valuation model","A board resolution"],a:0,
+ ex:"Excel scenarios are financial (high, base, low); a term sheet does the same in words (up round, flat, down round). It provides signaling, intent and negotiation parameters."},
+{r:4,k:"tf",t:"Is it the final document?",o:TF,a:1,
+ q:"True or false: the term sheet is the final legal document.",
+ ex:"The purchase and sale agreement, amended charter and articles, and share transfer follow, typically 2–4 weeks later."},
+{r:4,k:"mc",t:"The no-shop clause",
+ q:"How binding is a 'no-shop' clause?",
+ o:["It's a moral, not legal, obligation","Fully enforceable in court","It's illegal","It binds only the VC"],a:0,
+ ex:"Founders do shop term sheets. He caught one through his own unique 'fingerprint' clause and pulled the deal."},
+{r:4,k:"mc",t:"What a term sheet covers",
+ q:"A term sheet focuses on the current round, future up rounds, future down rounds, or all?",
+ o:["All of the above","Current round","Future up rounds","Future down rounds"],a:0,fixed:1,
+ ex:"It's legal scenario analysis across every future state."},
+{r:4,k:"mc",t:"East vs West Coast",
+ q:"How do East Coast and West Coast VCs differ in what they focus on?",
+ o:["East Coast on anti-dilution; West Coast on tag-along and pro rata","East on pro rata; West on anti-dilution","East on board seats; West on price","No difference"],a:0,
+ ex:"East Coast firms come from Wall Street and were burned by blow-ups."},
+{r:4,k:"case",t:"Price vs terms",
+ c:"In 2023 Microsoft accepted OpenAI's price, $10B at a $29B valuation, with no negotiation. Instead it took 75% of OpenAI's profits until it recouped $10B, then 49% up to a cap, and commercial use ran through Microsoft's platform.",
+ q:"Which matters more in a VC deal, price or legal terms?",
+ o:["Legal terms","Price","Equal","Neither; relationships matter only"],a:0,
+ ex:"\"Tell me your price and I'll tell you my terms.\" Outcomes are nearly binomial. The terms were so onerous that OpenAI later renegotiated once leverage shifted. In hedge fund or PE classes people pick price.",
+ w:[null,"Microsoft didn't even negotiate the price; the value was in the terms.","The terms decided who gets what in every scenario.","Terms and relationships both matter, but the poll answer is legal terms."]},
+{r:4,k:"mc",t:"Up rounds in name only",
+ q:"Tonal, Jokr and Acorns raised at higher headline valuations in 2022. What was the catch?",
+ o:["They guaranteed investors up to 2x their money in a downside","They gave up board control","They had to IPO within a year","Nothing; they were real up rounds"],a:0,
+ ex:"'Up rounds in name only'. Klarna, by contrast, took an honest down round at −85%."},
+{r:4,k:"mc",t:"Mapping terms to scenarios",
+ q:"Which term addresses the up-round scenario?",
+ o:["Pro rata rights","Anti-dilution","Liquidation preference","Negative covenants"],a:0,
+ ex:"Valuation covers the current round; anti-dilution covers a down round; capitalization, board rights, information rights, transferability and employee options cover all scenarios. Pro rata = upside clause; anti-dilution = downside clause."},
+{r:4,k:"fig",t:"Payoff diagrams",fig:"payoff",
+ q:"Which line is convertible preferred stock?",
+ o:["Line A","Line B","Line C"],a:1,fixed:1,
+ ex:"It rises with protection, goes flat (you hold the conversion option but haven't exercised it), then rises again after conversion: downside protection plus unlimited upside.",
+ w:["Line A is straight preferred: protected, but the upside is capped like debt. You never want this in VC.",null,"Line C is common stock: a 45-degree line with equal rights all along."]},
+{r:4,k:"mc",t:"Which security VCs use",
+ q:"Which security is used in about 90–98% of VC deals?",
+ o:["Convertible preferred","Common","Straight preferred","Venture debt"],a:0,
+ ex:"Common is about 2% (mostly angel deals). Convertible preferred is forced into common at IPO by law, or on the conditions in the documents."},
+{r:4,k:"mc",t:"Double dipping",
+ q:"With convertible preferred, do you get both the downside triangle and the upside triangle?",
+ o:["No: they're mutually exclusive","Yes, always","Only in an IPO","Only with a participating clause"],a:0,
+ ex:"The company is at one valuation at a time, and once you convert you give up the preference. Theranos and WeWork investors converted voluntarily to look loyal and lost the downside triangle when value collapsed."},
+{r:4,k:"cmt",t:"Fixating on triangles",
+ c:"A founder keeps insisting: \"It's not fair that you get both triangles.\"",
+ q:"What does the professor read into this?",
+ o:["Ask what they know that you don't: fixating on the downside is a behavioral tell","Nothing; it's a fair point","They're inexperienced, so ignore it","Agree and drop the preference"],a:0,
+ ex:"\"After that conversation, we never talked about triangles again.\""},
+{r:4,k:"calc",t:"Liquidation preference",
+ c:"You invest $100 with a 1x liquidation preference. The company fails, and only $20 remains (from selling the spectrum).",
+ q:"What do you get?",
+ o:["$20, ahead of common: not a donut","$0","$100","Your % share of the $20"],a:0,
+ ex:"20 cents on the dollar. Structure turned a donut into a partial recovery.",
+ w:[null,"The preference puts you first in line for what's left.","A 1x preference caps your claim at $100, but there's only $20.","That's what common holders get. The preference puts you ahead of them."]},
+{r:4,k:"mc",t:"The capital stack",
+ q:"When does venture debt appear above preferred in the capital stack?",
+ o:["Around rounds C/D, once there are cash flows to pay interest","At seed","Never","Only at IPO"],a:0,
+ ex:"Later investors (C, D, E) also often negotiate seniority over A and B, because they have more money and better lawyers."},
+{r:4,k:"mc",t:"Control is not the point",
+ q:"Why does PE need 51%+ control while VC doesn't?",
+ o:["PE loads debt on the balance sheet and must control free cash flow to service it","PE invests smaller amounts","VC is legally barred from control","PE deals are riskier"],a:0,
+ ex:"VC is about securing upside and protecting downside, not control. In typical deals, over 60% of boards have neither a VC nor a founder majority."},
+{r:4,k:"case",t:"Seizing control",
+ c:"A start-up is struggling. A board member suggests the VC takes control and replaces the founder.",
+ q:"Is that a good way for the VC to protect itself?",
+ o:["Rarely: there's no cash flow to control, and the team, suppliers and customers may walk","Yes: control always protects the downside","Yes, if the VC holds over 50%","Only in an up round"],a:0,
+ ex:"It can be a self-inflicted bankruptcy; Sam Altman's ouster nearly imploded OpenAI. The exception is valuable intangibles such as patents or spectrum, worth seizing when a company fails. Incentivizing management is vital, so preferred stock is used instead of control."},
+{r:4,k:"tf",t:"What anti-dilution protects",o:TF,a:1,trap:1,
+ q:"True or false: anti-dilution clauses protect your ownership percentage whenever new shares are issued.",
+ ex:"They protect economic value (shares × price per share), not your percentage, and only a down round triggers them. This was the 2 marks the student missed on the sample question.",
+ m:"Economic dilution, not ownership dilution."},
+{r:4,k:"fig",t:"The up round",fig:"anti",
+ q:"In the up round, VC-A's stake falls from 20% to 18%. Does anti-dilution trigger?",
+ o:["No: it's ownership dilution with no economic dilution","Yes: its percentage fell","Yes, but only weighted average","Only if VC-B demands it"],a:0,
+ ex:"VC-A's stake is worth $360, up from $200. Anti-dilution protects value, so nothing triggers."},
+{r:4,k:"fig",t:"Full ratchet",fig:"anti",
+ q:"A full ratchet restores VC-A to $200 in the down round. Where do the extra shares come from?",
+ o:["The founder: 72% → 50%","VC-B","The option pool","Newly authorized shares that dilute no one"],a:0,
+ ex:"Founder motivation collapses, VC-A gains power over VC-B, and VC-B may walk. A full ratchet ('like Halloween's hatchet') is the most egregious form.",
+ w:[null,"VC-B keeps its 10%.","The table shows the founder's stake falling.","Every new share dilutes someone."]},
+{r:4,k:"mc",t:"Weighted average",
+ q:"In the same down round, where does a weighted-average clause leave VC-A's stake value?",
+ o:["Between $90 and $200, typically about $110–130","Exactly $200","Exactly $90","Above $360"],a:0,
+ ex:"It's a compromise between VC-A and VC-B."},
+{r:4,k:"mc",t:"Are ratchets enforced?",
+ q:"Are full ratchets usually enforced?",
+ o:["No: 64% of VCs waive them to prevent liquidation","Yes, always","Only by East Coast firms","Only in IPOs"],a:0,
+ ex:"Enforcing kills the new round you aren't willing to fund, which likely means liquidation. \"18% of something beats 40% of nothing.\" You're never forced to exercise a right; having it gives you leverage to renegotiate."},
+{r:4,k:"mc",t:"Down rounds today",trap:1,
+ q:"Are down rounds more prevalent today?",
+ o:["It depends on the sector","Yes, everywhere","No, they've disappeared","Only in AI"],a:0,
+ ex:"There are many outside the AI 'Magnificent 7', including many inside AI. They were nearly absent 2009–2021 (QE), mattered in 2022–23, and continued through 2024–25; some analysts today have never seen one."},
+{r:4,k:"mc",t:"Pro rata",
+ q:"What is a pro rata right?",
+ o:["The right, not the obligation, to invest in future rounds to keep your ownership %","An obligation to invest in every round","A guarantee of a board seat","Protection against a down round"],a:0,
+ ex:"It's often called the second most important term after price. Fred Wilson: \"Pro rata rights are a must.\" Without a written clause, no one has to invite you back."},
+{r:4,k:"calc",t:"Keeping your 1%",
+ c:"You invested $50K at a $5M cap for 1%. The next round raises $3M at $9M pre / $12M post.",
+ q:"How much must you invest to stay at 1%?",
+ o:["$30K","$50K","$120K","$22.5K"],a:0,
+ ex:"Without participating you fall to 0.75% (9/12 of 1%, a 25% dilution). Buying 1% of the $3M round, $30K, keeps you at 1%.",
+ w:[null,"That repeats your original check; you only need 1% of the new money.","That's 1% of the whole $12M company. You already own most of your 1%.","That's 0.75% of the round."]},
+{r:4,k:"mc",t:"Not exercising pro rata",
+ q:"Why might a VC not exercise its pro rata right?",
+ o:["The fund is running out of capital, or it disagrees with the valuation","It's illegal after Series B","It always exercises","Founders can block it"],a:0,
+ ex:"His $75M fund was down to $3M and couldn't follow on. AngelList-style diversification says pro rata matters less; large GPs say you'll be squeezed out of your winners without it."},
+{r:4,k:"mc",t:"The key missing term",trap:1,
+ q:"The key missing term in a term sheet: pro rata, anti-dilution or the options pool?",
+ o:["Pro rata since 2010; anti-dilution before 2010","Anti-dilution, always","Options pool","None matter"],a:0,
+ ex:"Rising valuations made upside clauses dominant; falling valuations made downside clauses dominant. The class majority said anti-dilution. Context and year decide."},
+{r:4,k:"fig",t:"Dilution by round",fig:"dilution",
+ q:"Is dilution highest early or late?",
+ o:["Early: the riskiest rounds give up the most","Late: bigger rounds dilute more","Constant across rounds","Only at IPO"],a:0,
+ ex:"Seed 21%, A 24%, B 18%, C 14.5%, D 11%. Dilution fell from 2019 to 2021 as more capital chased deals."},
+{r:4,k:"mc",t:"Normal dilution",
+ q:"Rule of thumb (Leo Polovets): how much dilution is normal at pre-seed or seed?",
+ o:["About 20% is normal, 30% is OK, 50%+ is crazy","About 50%","Under 5%","About 75%"],a:0,
+ ex:"Big early dilution damages founder motivation, which is human capital."},
+{r:4,k:"mc",t:"The option pool shuffle",
+ q:"Does the employee options pool affect valuation?",
+ o:["Yes: VCs build it into the pre-money, so the price per share is lower","No: it's separate from valuation","Only at IPO","Only for common holders"],a:0,
+ ex:"The dollar valuation looks the same, but the price per share is lower. Without options, no one joins a risky start-up; they're usually granted by about year 2."},
+{r:4,k:"case",t:"Joining a start-up",
+ c:"You're offered options at a start-up.",
+ q:"What should you ask?",
+ o:["\"Is my share class the same as the founders'?\" phrased as \"How will future dilution events affect my position?\"","\"What's the valuation?\"","\"When is the IPO?\"","\"Who are the VCs?\""],a:0,
+ ex:"Former students at Zynga and WeWork got common while founders held preferred."},
+{r:4,k:"mc",t:"Reading a cap table",
+ q:"A cap table has three layers. What are they?",
+ o:["The math, the law and the story","Assets, liabilities and equity","Seed, growth and exit","Common, preferred and options"],a:0,
+ ex:"It shows ownership, key players, pro rata, economic rights, the liquidation-preference stack and voting."},
+{r:4,k:"mc",t:"Red flags",
+ q:"Which red flag appears on both the entrepreneur's and the VC's lists?",
+ o:["A corporate strategic investor","Under-financing","Unwillingness to report","Weak board composition"],a:0,
+ ex:"Its motive may be the technology, not the return. Also avoid one-sidedness and milestones that become a leash, such as weekly reports or liquidation for a missed four-week target.",
+ w:[null,"That's only on the entrepreneur's list.","That's only on the VC's list.","That's only on the VC's list."]},
+{r:4,k:"case",t:"Airbnb 2011",
+ c:"In a $1.2B round, Airbnb's founders took a $22.5M dividend to common, $21M to themselves, excluding option-holding employees.",
+ q:"Why did Chamath pass?",
+ o:["Liquidity for founders only: \"If you want liquidity, make it available to everyone\"","The valuation was too low","He disliked the travel sector","The founders refused a board seat"],a:0,
+ ex:"It's a red flag about how founders treat employees and other holders."},
+{r:4,k:"calc",t:"Lego 4: the round",
+ c:"The VC invests $8M for 40%.",
+ q:"What are the post-money and pre-money?",
+ o:["Post $20M, pre $12M","Post $20M, pre $28M","Post $8M, pre $12M","Post $32M, pre $20M"],a:0,
+ ex:"8 ÷ 0.4 = $20M; 20 − 8 = $12M. The prior pre-money was $7.5M, so the price rose 60% in 8 months, which is normal at seed. If you dislike it, walk away.",
+ w:[null,"Pre-money is post minus the investment.","Post-money is the investment divided by the stake.","That treats 40% as the pre-money stake."]},
+{r:4,k:"calc",t:"Lego 4: 40% vs 45%",
+ c:"Mr M owns 80% before the round. Your partner suggests taking 45% instead of 40%.",
+ q:"What would Mr M's stake be?",
+ o:["44%","48%","35%","40%"],a:0,
+ ex:"80% × 55% = 44%, versus 80% × 60% = 48% at 40%. For every point you take, he loses 0.8. At 44% the VC would hold the most shares, which damages the founder psychologically at the toddler stage even though he still runs the company. The extra 5% looks good in Excel but harms human capital.",
+ w:[null,"That's his stake if you take 40%.","That subtracts 45 from 80, but he's diluted proportionally.","That's not the calculation; his 80% is diluted by the 45% sold."]},
+{r:4,k:"mc",t:"Who wrote the term sheet",
+ q:"Mr M wrote the term sheet himself. Why does that matter?",
+ o:["He anchors you; you must find the omitted terms, not only fix the existing ones","It means it's fair","It means it's final","It saves legal fees"],a:0,
+ ex:"In valuation he let you lead, so you negotiated with yourself; on terms he leads. Hire experienced lawyers and keep a 'dummy' term sheet of all clauses to check against."},
+{r:4,k:"mc",t:"Fixing 'common shares'",
+ q:"Mr M's draft offers common shares at $1.00 par. What should you ask for instead?",
+ o:["Convertible preferred with a liquidation preference up to the $20M agreed value, then 40% of the upside","More common shares","Debt with warrants","Straight preferred"],a:0,
+ ex:"He shouldn't object if he believes the company is worth more. Cumulative dividends were also suggested."},
+{r:4,k:"mc",t:"Fixing information rights",
+ q:"The draft gives you an annual audited report. What's the fix?",
+ o:["Monthly unaudited operating reports plus inspection rights and access to management, books and plans","Quarterly audited reports","Nothing; annual is standard","A second board seat"],a:0,
+ ex:"Audits are too slow for a start-up."},
+{r:4,k:"mc",t:"Omitted clauses",
+ q:"Which of these was NOT in Mr M's draft and must be added?",
+ o:["Anti-dilution","Board: nominate 2 of 5","Right of first refusal","Options pool up to 1M shares"],a:0,
+ ex:"Also omitted: use of proceeds (primary issue, used in the business), milestones, key-man insurance, salary and non-competes, pro rata, protective provisions and ring-fencing of new projects (the Hotmail lesson).",
+ w:[null,"It's in the draft; just clarify that 'nominate' means 'appoint'.","It's in the draft and fair.","It's in the draft (about 5% dilution); specify vesting and strike."]},
+{r:4,k:"fig",t:"Assignment 3: Alpha vs Mega",fig:"alpha",
+ q:"At a $10M liquidation, which term sheet is better for the founders?",
+ o:["Alpha: about $3.0M versus about $1.5M under Mega","Mega: it has no escrow","They pay the same","Mega: its pre-money is lower"],a:0,
+ ex:"Above about $30M, Alpha's 3x cap makes it clearly better. Most students picked Alpha; others picked Mega for control. There's no single right answer: the grade is in the reasoning.",
+ w:[null,"Mega avoids escrow, but its 1.25x preference, cumulative dividends and full participation take more of a small exit.","The payouts differ a lot because of the preference terms.","A lower pre-money is worse for founders, not better."]},
+{r:4,k:"fig",t:"Assignment 2b: Hotmail rounds",fig:"hot",
+ q:"Which is a common mistake in the Series D call/put calculation?",
+ o:["Thinking a put returns money to the VC","Using Round C's post-money shares as the starting point","Remembering that post-money = pre-money + new money","Calculating cumulative VC %"],a:0,
+ ex:"A put doesn't return money; it strikes the price lower. Only one of call or put triggers, so both start from Round C's post-money shares. Term sheets get more complex with every round, especially when the exit is delayed.",
+ w:[null,"That's the correct approach, not the mistake.","That's correct; forgetting it is the mistake.","That's part of the correct answer."]},
+{r:4,k:"mc",t:"After investing",
+ q:"What is the hardest decision after investing: marketing, personnel or financing?",
+ o:["Personnel","Marketing","Financing","None; the hard part is over"],a:0,
+ ex:"People are the asset. Interventions include CEO changes; Google's founders took the CEO role only later, and Dell's and Starbucks' founders returned. \"The hardest thing to manage in a crisis isn't your company, it's your own psychology\" (Brian Chesky)."},
+{r:4,k:"mc",t:"Quarterly review",
+ q:"In the quarterly portfolio review, what does PTS stand for?",
+ o:["Performance, team, scalability","Price, terms, structure","Pivot, traction, sales","Profit, tax, savings"],a:0,
+ ex:"Deals are ranked on PTS, revenue, performance against budget, value against revenue and IRR to date. The bottom quartile gets extra attention."},
+{r:4,k:"mc",t:"Pivots",
+ q:"How often do surviving start-ups pivot?",
+ o:["Reportedly over 50% of the time","Rarely","Never, if well run","Only after a down round"],a:0,
+ ex:"Netflix (DVD to streaming), Slack (game to workplace chat), Nintendo (cards to consoles), Western Union (telegram to money transfer)."},
+{r:4,k:"tf",t:"Highest first valuation",o:TF,a:1,
+ q:"True or false: getting the highest possible first-round valuation is always good for the founder.",
+ ex:"It sets expectations, and a later down round triggers anti-dilution."},
+
+/* ───────── Class 5 ───────── */
+{r:5,k:"mc",t:"Most common exit",trap:1,
+ q:"What is the most common VC exit?",
+ o:["Liquidation","M&A","IPO","Secondary sale"],a:0,
+ ex:"About 80% fail. Successful exits are M&A or IPO."},
+{r:5,k:"mc",t:"Generating vs realizing",
+ q:"What is the difference between generating and realizing a return?",
+ o:["Generating = unrealized marks set by GPs and auditors; realizing = cash from an exit","They're the same","Generating = cash; realizing = marks","Generating applies only to IPOs"],a:0,
+ ex:"The fund lives only 10 years, so every position must be turned from a mark into cash. Judging an exit requires knowing the entry, the basis, the sector and the exit type."},
+{r:5,k:"fig",t:"Vintage matters",fig:"vintage",
+ q:"Why did funds started just before the bubble do so well?",
+ o:["They sold into the bubble","They invested at the peak","They avoided tech","They used more leverage"],a:0,
+ ex:"Funds started at the dot-com peak bought high. Funds started in 2022 are in trouble unless they hold AI winners."},
+{r:5,k:"mc",t:"Why marks and exits diverge",
+ q:"Which is NOT one of the four sources of discrepancy between marks and exit values?",
+ o:["Stricter audit rules for private companies","Crowding and minimal due diligence","New accounting metrics","Exit math: time and liquidity"],a:0,
+ ex:"The four: crowding (near 1999 levels; megafunds must deploy), new accounting metrics, new estimates of private value, and exit math (time and liquidity)."},
+{r:5,k:"case",t:"Adjusted metrics",
+ c:"WeWork reported 'community-adjusted EBITDA', which stripped out rent. Today some AI companies report 'EBTITDA': earnings before training.",
+ q:"What is the professor's point?",
+ o:["It's legal if footnoted as 'adjusted', so read the footnotes","It's illegal and will be prosecuted","It's standard GAAP","It doesn't affect valuation"],a:0,
+ ex:"Removing compute costs turns losses positive. He laughed in the WeWork meeting and said no at $26B, watched it reach $40B, then collapse. \"When you were right but everyone thought you were wrong, no one will say anything.\""},
+{r:5,k:"mc",t:"What a round prices",
+ q:"What does a new funding round actually price?",
+ o:["Only the marginal share, not liquidity for all shares","The whole company at a liquid price","The founders' shares only","The IPO price"],a:0,
+ ex:"That's one reason marks can diverge from exit values. Perpetual and pre-IPO tools are emerging."},
+{r:5,k:"mc",t:"Private marks lag",
+ q:"After the 2022 public correction, when did VC markdowns surface?",
+ o:["Only in April 2023, after a new fund had already been raised","Immediately, in Q2 2022","Never","Before the public market fell"],a:0,
+ ex:"Markdowns of −8% (Q4 2022) and −20% (Q1 2023). Private marks lag public markets by 3–6 months, and a correction must last about 6 months before private valuations shift. Public markets impose daily discipline; private markets let you hide for 6–12 months."},
+{r:5,k:"mc",t:"The gap",trap:1,
+ q:"Is the gap between private marks and exit values growing, shrinking or stable?",
+ o:["Growing","Stable","Shrinking","It doesn't exist"],a:0,
+ ex:"Most of the class said 'stable'. OpenAI and Anthropic marks haven't been tested by an IPO."},
+{r:5,k:"tf",t:"Comparable metrics",o:TF,a:1,
+ q:"True or false: Anthropic and OpenAI use the same valuation metrics.",
+ ex:"They count revenue and EBITDA differently. Private companies can define anything; public ones must conform, with footnoted adjustments."},
+{r:5,k:"cmt",t:"'Bigger than Earth'",
+ c:"Musk claims SpaceX could exceed Earth's $110T GDP. Anthropic's S-1 TAM is about $30–32T.",
+ q:"How should you respond?",
+ o:["Quantify it (about 200 NVIDIAs), stay skeptical, but don't be a pessimist who just shorts it","Dismiss it as impossible and short the stock","Accept it; founders know their markets","Ignore TAMs entirely"],a:0,
+ ex:"You can be skeptical but you can't disprove it. NVIDIA is about $5.6T.",
+ m:"Be skeptical, never pessimistic."},
+{r:5,k:"mc",t:"Year 10 with no exit",
+ q:"If no exit works by year 10, what can the fund do?",
+ o:["Distribute shares in kind to LPs, or use a continuation vehicle","Extend the fund forever at no cost","Force the company to IPO","Write it to zero"],a:0,
+ ex:"LPs want liquidity, not stock. A continuation vehicle means another 10 years of 2-and-20; evergreen funds are another option. Exit options: IPO, M&A, recapitalization, secondary, pre-IPO perpetuals."},
+{r:5,k:"tf",t:"Preferred at IPO",o:TF,a:1,
+ q:"True or false: convertible preferred stock stays outstanding after the IPO.",
+ ex:"Preferred converts to common at IPO, forced by law, and options are exercised. A new board with independents, SEC registration (the S-1) and a tough audit follow."},
+{r:5,k:"mc",t:"How much is sold at IPO",
+ q:"How much of the company is typically sold at an IPO?",
+ o:["About 5–10%","About 50%","100%","About 25%"],a:0,
+ ex:"Selling everything signals 'what do you know that I don't?' Founders take about 12 years to sell down; VCs face a 6-month lock-up, then sell over about 3 years. In M&A, 100% is sold at once."},
+{r:5,k:"mc",t:"IPO and M&A premiums",
+ q:"Where does each exit's premium come from?",
+ o:["IPO: a liquidity premium of about 20–30%; M&A: a takeover or synergy premium of about 20–30%","IPO: synergies; M&A: liquidity","Neither has a premium","IPO trades at a discount to private value"],a:0,
+ ex:"An IPO goes from about 2,000 buyers to millions, removing the illiquidity discount, plus a possible first-day pop. M&A premiums rise in an auction or at the right time and place."},
+{r:5,k:"tf",t:"Tax across exits",o:TF,a:1,
+ q:"True or false: every exit route has the same tax effect.",
+ ex:"M&A can trigger 100% tax at once unless paid in buyer shares; an IPO taxes only shares sold. Interview line: \"Is that return tax-adjusted?\" The regulator he fears most is the IRS."},
+{r:5,k:"mc",t:"Dual track",
+ q:"What do bankers do when an IPO and a sale are both possible?",
+ o:["Run both in parallel (dual track) and pick whichever gives more value","Always pick the IPO","Always pick M&A","Let the VC decide alone"],a:0,
+ ex:"There are no hard and fast rules, and bankers earn fees either way: underwriting or advisory. \"Rarely so lucky to have the choice.\""},
+{r:5,k:"mc",t:"Acqui-hire",
+ q:"What is an acqui-hire?",
+ o:["An M&A deal that buys the people","An asset purchase of patents","A stock-for-stock merger","An IPO for employees"],a:0,
+ ex:"Other M&A types: a stock deal and an asset deal. M&A runs as a negotiated (exclusive) process or an auction."},
+{r:5,k:"case",t:"The psychology of the ticker",
+ c:"A friend's company IPO'd at $28, rose to about $140 in 6 months on thin supply during the lock-up, then fell back to about the IPO price.",
+ q:"What went wrong for the founder?",
+ o:["He anchored on a peak that lasted one day","He sold too early","The IPO was mispriced by the bank","He didn't have a lock-up"],a:0,
+ ex:"Private CEOs aren't used to volatility; he 'went through a divorce'. Surveys rank public-company CEO as the most miserable job: quarterly pressure, Reg FD, Sarbanes-Oxley."},
+{r:5,k:"mc",t:"IPO process",
+ q:"What is the order of the traditional IPO process?",
+ o:["Solicitation → positioning and valuation → targeting investors → roadshow → pricing and allocation → aftermarket","Roadshow → solicitation → pricing → targeting → aftermarket","Pricing → roadshow → solicitation → aftermarket","Aftermarket → pricing → roadshow → solicitation"],a:0,fixed:1,
+ ex:"The S-1 goes to institutions first under NDA, then publicly. The book build records demand at each price: a higher price means less demand. The VC's role is about 10%, concentrated pre-filing; its main question is \"When can we sell?\""},
+{r:5,k:"mc",t:"Stabilization",
+ q:"What does the lead-left bank do in the aftermarket?",
+ o:["Buys to keep the price at or above the IPO price during the first week","Sells its allocation on day one","Sets the lock-up","Writes the S-1"],a:0,
+ ex:"4–10 banks join for distribution."},
+{r:5,k:"mc",t:"Why Thursday or Friday",
+ q:"Why do IPOs price on Thursday or Friday?",
+ o:["It limits the days the underwriter must defend the price, and the weekend absorbs the headlines","Markets are less volatile on Fridays","Regulation requires it","Retail investors trade more on Fridays"],a:0,
+ ex:"Stabilization runs only that first week. It also eases the company into daily price visibility; bad news is always dropped on Friday night."},
+{r:5,k:"case",t:"Facebook's IPO",
+ c:"Morgan Stanley earned about $45M in fees on Facebook's 2012 IPO.",
+ q:"What happened next?",
+ o:["It spent about $100M defending the $38 IPO price, and the team was cut","It earned a bonus from the first-day pop","Facebook paid it extra to stabilize","Nothing unusual"],a:0,
+ ex:"Stabilization can cost the underwriter more than the fees."},
+{r:5,k:"mc",t:"SpaceX changed IPO math",
+ q:"How did SpaceX's IPO break the norms?",
+ o:["Faster lock-up releases, index inclusion in about 10 days, up to 30% retail, and a $75B raise","It had no S-1","It listed on a foreign exchange","It priced on a Monday"],a:0,
+ ex:"Index inclusion normally takes about a year. IPO math is changing."},
+{r:5,k:"mc",t:"Reading the S-1",
+ q:"What should you read first in an S-1?",
+ o:["The footnotes","The cover page","The CEO letter","The use of proceeds"],a:0,
+ ex:"Adjusted metrics and risk disclosures live there. Disclosures like 'AI could kill you' create a disclosure shield against future liability: Anthropic is going public partly for that shield; OpenAI's shield is 'too big to fail'."},
+{r:5,k:"mc",t:"Direct listing",
+ q:"Which is true of a direct listing?",
+ o:["No capital raised, fees under 2%, no lock-up, no IPO pop","It raises more capital than an IPO","It includes a 6-month lock-up","It's a reverse merger into a shell"],a:0,
+ ex:"Price discovery comes from a banker's reference price, so on average there's no premium. Examples: Spotify, Coinbase, Palantir. There are three doors: traditional IPO, direct listing, SPAC.",
+ w:[null,"A direct listing raises nothing; it's for companies that don't need capital.","No lock-up is one of its features.","That's a SPAC."]},
+{r:5,k:"calc",t:"SPAC sponsor promote",
+ c:"A sponsor pays about $25K for 20% of a $500M SPAC.",
+ q:"If the stock halves after the merger, what is the sponsor's stake worth?",
+ o:["About $50M","About $25K","$100M","Nothing"],a:0,
+ ex:"20% of $500M is $100M of shares; halved, it's still about $50M. That's the hidden footnote. His view: \"the single worst instrument I've ever seen created\" (Virgin Galactic, Nikola, DraftKings).",
+ w:[null,"That's what the sponsor paid.","That's before the stock halves.","The promote is worth a lot even when public holders lose."]},
+{r:5,k:"tf",t:"SPACs in 2020",o:TF,a:0,
+ q:"True or false: in 2020 SPACs raised over $50B, about half of IPO proceeds.",
+ ex:"True, with celebrity sponsors, and they lowered the age of companies going public. SPACs need a bigger day-one gain to offset sponsor dilution; traditional IPOs averaged over 30% first-day returns in 1999 and 2020."},
+{r:5,k:"mc",t:"IPO windows",
+ q:"What is an IPO window?",
+ o:["A sector-specific period when companies can list at good prices","A fixed quarter each year","The 6-month lock-up","The book-building week"],a:0,
+ ex:"\"You're hot or you're not\": oil and gas (wars), medical instruments (legislation), the internet (1999), crypto (2021), now AI. Next, in his view: robotics, space, quantum, longevity, nanotech. Investors never learn: short memory, the 'Fed put', 'this time is different'."},
+{r:5,k:"case",t:"Market timing",
+ c:"Nine IPOs were withdrawn in three weeks even though indices were at all-time highs. Oura postponed, citing 'market conditions'.",
+ q:"Is stock-market performance relevant to exit timing?",
+ o:["Yes: only the Magnificent 7 were rising, so the window was shut for others","No: all-time highs mean it's always a good time","Only for SPACs","Only for direct listings"],a:0,
+ ex:"Headline indices can hide a closed sector window."},
+{r:5,k:"mc",t:"Staying private longer",
+ q:"Companies now stay private about 5+ years longer than in the 2010s. Why?",
+ o:["All of these, with strong secondaries the main reason","Strong secondary markets only","A weak IPO market only","Strong M&A only"],a:0,fixed:1,
+ ex:"Secondaries give employees liquidity without an IPO and are now a retention tool (an OpenAI employee secondary at about $500B). \"Private markets are the new public markets\" (Matt Levine)."},
+{r:5,k:"tf",t:"Debt in start-ups",o:TF,a:0,
+ q:"True or false: debt is more common in private start-ups than it used to be.",
+ ex:"True, because they stay private into rounds D, E, F and G, when cash flows can service it."},
+{r:5,k:"mc",t:"The last long correction",
+ q:"When was the last public correction that lasted 6+ months?",
+ o:["2022","2008","2020","2000"],a:0,
+ ex:"It was short-lived for VC because ChatGPT (Nov 2022) revived sentiment. 2008 was the big one.",
+ w:[null,"2008 was the big one, but not the most recent.","The 2020 correction lasted under four weeks.","Much earlier."]},
+{r:5,k:"mc",t:"Back to pre-1933",
+ q:"What does the professor mean by 'back to pre-1933'?",
+ o:["Public and private markets are converging; their separation was created after 1929","Banks are failing again","Gold is back as money","The SEC is being abolished"],a:0,
+ ex:"The SEC and the Securities Act of 1933 created the separation."},
+{r:5,k:"case",t:"Lego 5: the secret project",
+ c:"June 2004. Invisible Wires is cash-flow positive. Mr M is restless and working on a 'top secret' project.",
+ q:"Should you be worried?",
+ o:["No: it's ring-fenced, so use it to move Mr M back to science while a professional CEO runs the expansion","Yes: it's another Hotmail","Yes: fire Mr M","No: ignore it"],a:0,
+ ex:"The documents ring-fence 'any extended project'. Mr M is a great technical founder but not the right scaling CEO. 'Invert the problem' to protect his feelings. Founders often step back (Google, Amazon, Yahoo, Starbucks).",
+ w:[null,"Not this time: the Hotmail lesson was applied in the term sheet.","That destroys human capital at the worst moment.","It's an opportunity, not something to ignore."]},
+{r:5,k:"mc",t:"Lego 5: key issue for Round B",
+ q:"The model is proven: 20% penetration at $80/month and break-even in year 1. What is the key risk in scaling 10x?",
+ o:["It's proven on a small sample, one county; replication is the question","There's no risk left","The founder owns too little","The FCC will revoke the licenses"],a:0,
+ ex:"Rollout takes time, which risks obsolescence and competitor response; not every market needs wireless; spectrum may not be acquirable. The founder thinks risk is 'way down'; the VC sees technology, consumer and competitor risk. And can a $50M fund even fund 10x?"},
+{r:5,k:"mc",t:"Lego 5: how he funded it",
+ q:"How did the professor fund the 1M-home expansion?",
+ o:["No new equity: debt against county-1 spectrum and cash flows, plus staging","A large Series B led by his fund","An IPO","Selling to Moto"],a:0,
+ ex:"No dilution (ownership or economic), no draw on the fund, and cash reserves for unforeseen burn. A holdco with a separate county-1 subsidiary secured the debt; software and patents stayed at the holdco. As data and history accumulate, be creative."},
+{r:5,k:"calc",t:"Lego 5: debt capacity",
+ c:"County 1 generates $9.6M of cash flow. The bank lends 4x cash flow at about 11% (CCC/B−).",
+ q:"How much debt can be raised?",
+ o:["$38.4M","$9.6M","$71.1M","$19M"],a:0,
+ ex:"4 × $9.6M = $38.4M.",
+ w:[null,"That's one year's cash flow.","That's the gap before debt.","That's the cash on hand."]},
+{r:5,k:"fig",t:"Lego 5: the funding gap",fig:"roundb",
+ q:"After debt and staging, how much new equity does the expansion need?",
+ o:["None: there's a surplus of about $13M","$71.1M","$36.9M","$100M"],a:0,
+ ex:"Early LA counties fund later ones as cash flows kick in.",
+ w:[null,"That's the gap before debt.","That's the gap before staging.","That's the gross need."]},
+{r:5,k:"mc",t:"Lego 5: the risk accepted",
+ q:"What risk did the professor accept by taking on debt, and why was it worth it?",
+ o:["The bank got a lien on county 1's spectrum, his former donut protection; it was worth it because P(donut) fell from about 1% to 0.1%","No risk at all","He gave up his board seat","He guaranteed the loan personally"],a:0,
+ ex:"Structure changes as the company matures."},
+{r:5,k:"case",t:"Lego 6: IPO or Moto?",
+ c:"Feb 2007. 1M homes, revenue over $50M, FCF-positive, $40M of debt with warrants, growing faster than Moto (4–5x revenue) and telcos (3–4x). The company is considering an IPO; then Moto makes an offer.",
+ q:"What does Moto's offer do?",
+ o:["Sets a floor and a bargaining chip: run IPO and M&A in parallel and pick the higher value","Ends the IPO option","Must be accepted because Moto was there on day one","Lowers the valuation"],a:0,
+ ex:"Also ask whether the sector window is open (Feb 2007, pre-crisis), whether Mr M wants to be a public-company CEO, and weigh the preference stack, warrant dilution and the fund's remaining life."},
+{r:5,k:"mc",t:"Lego 6: the fund's clock",
+ q:"The fund is a 2002–03 vintage, now in its later years. Which exit suits that?",
+ o:["M&A: full, immediate liquidity","IPO: sell 10% now and the rest over years","Hold forever","Distribute in kind immediately"],a:0,
+ ex:"After an IPO only about 10% is sold, insiders face a 6-month lock-up and VCs exit over about 3 years. Mind the cash/stock mix and taxes in M&A. Moto is a strategic buyer and may value the spectrum and technology above financial comps."},
+{r:5,k:"case",t:"YouTube",
+ c:"Google bought YouTube for $1.65B, 19 months after $12M of VC.",
+ q:"What kind of exit was this, and what does it show?",
+ o:["A strategic M&A exit: speed and the right buyer at the right time","An IPO: liquidity premium","A liquidation","A SPAC"],a:0,
+ ex:"A company is most valuable to the right buyer at the right time. Google also bought DoubleClick for $3.1B."}
+];
+Q.forEach((q,i)=>q.id="q"+i);
+
+/* ───────── Engine ───────── */
+const KEY="nvf-practice-v1";
+let state={answers:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.answers)state=s}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+const app=document.getElementById("app");
+let queue=[],pos=0,order=null,picked=null,mode="round";
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function R(n){return ROUNDS.find(r=>r.n===n)}
+function rlabel(n){return n===0?"Core":"Class "+n}
+function roundQs(n){return Q.filter(q=>q.r===n)}
+function roundScore(n){const qs=roundQs(n);const done=qs.filter(q=>q.id in state.answers);return {done:done.length,total:qs.length,ok:done.filter(q=>state.answers[q.id]).length}}
+
+/* figures */
+function fmt(v,u){const s=(Math.round(v*10)/10).toLocaleString("en-US");return u==="%"?s+"%":u==="bp"?s+"bp":s}
+function figHTML(f){
+  if(typeof f==="string")f=F[f];
+  if(!f)return "";
+  let body="";
+  if(f.type==="bars"){
+    body=`<div class="bars">${f.rows.map(r=>`<div class="brow${r[2]?" hl":""}"><span class="bl">${esc(r[0])}</span><span class="track"><i style="width:${Math.max(0.5,r[1]/f.max*100)}%"></i></span><span class="bv">${fmt(r[1],f.unit)}</span></div>`).join("")}</div>`;
+  }else if(f.type==="table"){
+    body=`<div class="tbl"><table><thead><tr>${f.head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${f.rows.map((r,i)=>`<tr${(f.hl||[]).includes(i)?' class="hl"':""}>${r.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  }else if(f.type==="line"){
+    body=lineSVG(f);
+  }
+  return `<figure class="fig" style="margin:0"><span class="ftitle">${esc(f.title)}</span>${body}${f.note?`<span class="fnote">${esc(f.note)}</span>`:""}</figure>`;
+}
+function lineSVG(f){
+  const W=600,H=330,L=62,Rm=20,T=24,B=60,pw=W-L-Rm,ph=H-T-B;
+  const X=x=>L+(x-f.xmin)/(f.xmax-f.xmin)*pw, Y=y=>T+(f.ymax-y)/(f.ymax-f.ymin)*ph;
+  let g=`<line class="ax" x1="${L}" y1="${T+ph}" x2="${L+pw}" y2="${T+ph}"/><line class="ax" x1="${L}" y1="${T}" x2="${L}" y2="${T+ph}"/>`;
+  if(f.zero)g+=`<line class="zero" x1="${L}" y1="${Y(0)}" x2="${L+pw}" y2="${Y(0)}"/>`;
+  (f.xt||[]).forEach(([x,l])=>{g+=`<text x="${X(x)}" y="${T+ph+26}" text-anchor="middle">${esc(l)}</text>`});
+  (f.yt||[]).forEach(([y,l])=>{g+=`<text x="${L-10}" y="${Y(y)+6}" text-anchor="end">${esc(l)}</text>`});
+  g+=`<text x="${L+pw/2}" y="${H-4}" text-anchor="middle">${esc(f.xlab)}</text>`;
+  g+=`<text transform="translate(20 ${T+ph/2}) rotate(-90)" text-anchor="middle">${esc(f.ylab)}</text>`;
+  f.series.forEach(s=>{
+    const d=s.pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+    g+=`<path d="${d}" fill="none" stroke="var(--${s.c})" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const e=s.pts[s.pts.length-1];
+    if(f.series.length>1)g+=`<text class="sl" x="${X(e[0])-6}" y="${Y(e[1])-12}" text-anchor="end" style="fill:var(--${s.c})">${esc(s.name)}</text>`;
+  });
+  if(f.dot){const last=f.series[0].pts.at(-1);g+=`<text class="sl" x="${X(f.dot[0])}" y="${Y(last[1])+4}" text-anchor="middle" style="fill:var(--s2)">${esc(f.dot[1])}</text>`}
+  return `<div class="svgwrap"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(f.title)}">${g}</svg></div>`;
+}
+
+function home(){
+  const answered=Object.keys(state.answers).length;
+  const next=ROUNDS.find(r=>roundScore(r.n).done<roundScore(r.n).total);
+  const traps=Q.filter(q=>q.trap).length;
+  app.innerHTML=`
+    <div class="intro">
+      <span class="label">New Venture Financing · Midterm prep</span>
+      <h1>NVF Practice</h1>
+      <p class="muted">${Q.length} questions built from the lecture notes, Invisible Wires, the assignments and every poll. Each question covers a different idea, so one pass covers the whole course. After each answer you get the reasoning, why your pick was wrong, and the line that earns marks.</p>
+    </div>
+    <div class="rounds">
+      ${ROUNDS.map(r=>{const s=roundScore(r.n);const status=s.done===s.total?`<span class="pill done num">${s.ok}/${s.total}</span>`:s.done?`<span class="pill todo num">${s.done}/${s.total} done</span>`:`<span class="pill todo num">${s.total} questions</span>`;
+        return `<button class="round" data-r="${r.n}"><span class="rn">${rlabel(r.n)}</span><span class="rt">${r.title}</span><span class="rscore">${status}</span><span class="rs">${r.sub}</span></button>`}).join("")}
+    </div>
+    <div class="row">
+      ${next?`<button class="btn" id="go">${answered?"Continue: "+R(next.n).title:"Start with core ideas"}</button>`:`<button class="btn" id="results">See results</button>`}
+    </div>
+    <div class="modes">
+      <button class="mode" id="mix"><b>Mixed 20</b><small>Random questions you haven't answered yet</small></button>
+      <button class="mode" id="traps"><b>Traps only</b><small>${traps} questions most of the class got wrong</small></button>
+      ${answered?`<button class="mode" id="results2"><b>Results</b><small>${answered} of ${Q.length} answered</small></button>`:""}
+    </div>
+    ${answered?`<div class="row" id="resetrow"><button class="btn secondary" id="reset">Start over</button></div>`:""}`;
+  app.querySelectorAll(".round").forEach(b=>b.onclick=()=>startRound(+b.dataset.r));
+  const go=document.getElementById("go");if(go)go.onclick=()=>startRound(next.n,true);
+  ["results","results2"].forEach(id=>{const b=document.getElementById(id);if(b)b.onclick=results});
+  document.getElementById("mix").onclick=startMix;
+  document.getElementById("traps").onclick=startTraps;
+  const re=document.getElementById("reset");if(re)re.onclick=confirmReset;
+  window.scrollTo(0,0);
+}
+
+function confirmReset(){
+  const row=document.getElementById("resetrow");
+  row.outerHTML=`<div class="confirm" id="resetrow"><p>Clear all answers and start from the beginning?</p><div class="row"><button class="btn" id="yes">Clear and restart</button><button class="btn secondary" id="no">Cancel</button></div></div>`;
+  document.getElementById("yes").onclick=()=>{state={answers:{}};save();home()};
+  document.getElementById("no").onclick=home;
+}
+
+function startRound(n,resume){
+  mode="round";
+  let qs=roundQs(n);
+  if(resume){const left=qs.filter(q=>!(q.id in state.answers));if(left.length)qs=left}
+  queue=qs;pos=0;show();
+}
+function startMix(){
+  mode="mix";
+  const fresh=shuffle(Q.filter(q=>!(q.id in state.answers)));
+  queue=(fresh.length>=20?fresh:fresh.concat(shuffle(Q.filter(q=>q.id in state.answers)))).slice(0,20);
+  pos=0;show();
+}
+function startTraps(){mode="traps";queue=shuffle(Q.filter(q=>q.trap));pos=0;show()}
+function startRetry(){mode="retry";queue=Q.filter(q=>state.answers[q.id]===false);pos=0;show()}
+
+const KIND={tf:"True or false",mc:"Concept",case:"Case",cmt:"Evaluate the comment",calc:"Calculation"};
+function kindOf(q){if(q.k==="fig"){const f=typeof q.fig==="string"?F[q.fig]:q.fig;return f.type==="table"?"Table":"Graph"}return KIND[q.k]}
+
+function show(){
+  const q=queue[pos];picked=null;
+  const idx=q.o.map((_,i)=>i);
+  order=q.k==="tf"?idx:q.fixed?(q.a===0?idx.slice(1).concat(0):idx):shuffle(idx); /* fixed lists keep "All/Both/None" answers last */
+  const label={retry:"Retry missed",mix:"Mixed practice",traps:"Trap questions"}[mode]||`${rlabel(q.r)} · ${R(q.r).title}`;
+  app.innerHTML=`
+    <div class="top">
+      <div class="topline"><span class="label">${label}</span><button class="link" id="exit">Exit</button></div>
+      <div class="bar" aria-hidden="true"><i style="width:${(pos/queue.length)*100}%"></i></div>
+      <span class="label num">Question ${pos+1} of ${queue.length}</span>
+    </div>
+    <div class="qcard">
+      <div class="kindrow"><span class="kind">${kindOf(q)}</span><span class="topic">${esc(q.t)}${mode!=="round"?" · "+rlabel(q.r):""}</span>${q.trap?`<span class="trap">Trap</span>`:""}</div>
+      ${q.fig&&q.k==="fig"?figHTML(q.fig):""}
+      ${q.c?`<p class="case">${esc(q.c)}</p>`:""}
+      <p class="qtext">${esc(q.q)}</p>
+      <div class="opts" role="group" aria-label="Answers">
+        ${order.map(oi=>`<button class="opt" data-i="${oi}"><span>${esc(q.o[oi])}</span></button>`).join("")}
+      </div>
+      <div id="fb"></div>
+    </div>`;
+  document.getElementById("exit").onclick=home;
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.i));
+  window.scrollTo(0,0);
+}
+
+function answer(i){
+  if(picked!==null)return;
+  const q=queue[pos];picked=i;const ok=i===q.a;
+  state.answers[q.id]=ok;save();
+  app.querySelectorAll(".opt").forEach(b=>{b.disabled=true;const bi=+b.dataset.i;
+    if(bi===q.a)b.classList.add("correct");else if(bi===i)b.classList.add("wrong");else b.classList.add("dim")});
+  const last=pos===queue.length-1;
+  const nextLabel=last?(mode==="round"?"Finish section":"See results"):"Next question";
+  const why=!ok&&q.w&&q.w[i]?`<p class="why"><b>Why not "${esc(q.o[i])}":</b> ${esc(q.w[i])}</p>`:"";
+  document.getElementById("fb").innerHTML=`
+    <div class="feedback ${ok?"ok":"bad"}" role="status">
+      <span class="verdict">${ok?"Correct":"Not quite. Answer: "+esc(q.o[q.a])}</span>
+      <p>${esc(q.ex)}</p>
+      ${why}
+      ${q.m?`<p class="mark"><b>Line that earns marks:</b> “${esc(q.m)}”</p>`:""}
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn" id="next">${nextLabel}</button></div>`;
+  const nb=document.getElementById("next");nb.onclick=next;nb.focus({preventScroll:true});
+  document.getElementById("fb").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
+}
+
+function next(){
+  if(pos<queue.length-1){pos++;show();return}
+  if(mode!=="round"){results();return}
+  roundEnd(queue[pos].r);
+}
+
+function roundEnd(n){
+  const s=roundScore(n);const r=R(n);
+  const missed=roundQs(n).filter(q=>state.answers[q.id]===false);
+  const nxt=ROUNDS.find(x=>x.n>n&&roundScore(x.n).done<roundScore(x.n).total)||ROUNDS.find(x=>roundScore(x.n).done<roundScore(x.n).total);
+  app.innerHTML=`
+    <div class="intro">
+      <span class="label">${rlabel(n)} complete</span>
+      <h2>${r.title}</h2>
+    </div>
+    <div class="score num">${s.ok}<span class="muted" style="font-size:1.5rem"> / ${s.total}</span></div>
+    ${missed.length?`<div class="intro"><span class="label">Review these</span><ul class="review">${missed.map(q=>`<li><b>${esc(q.t)}</b><small>${esc(q.ex)}</small></li>`).join("")}</ul></div>`:`<p class="clear">Clean section. Nothing to review here.</p>`}
+    <div class="row">
+      ${nxt?`<button class="btn" id="cont">Continue: ${esc(nxt.title)}</button>`:`<button class="btn" id="res">See final results</button>`}
+      <button class="btn secondary" id="home">Back to sections</button>
+    </div>`;
+  const c=document.getElementById("cont");if(c){c.onclick=()=>startRound(nxt.n,true);c.focus({preventScroll:true})}
+  const rs=document.getElementById("res");if(rs){rs.onclick=results;rs.focus({preventScroll:true})}
+  document.getElementById("home").onclick=home;
+  window.scrollTo(0,0);
+}
+
+function results(){
+  const done=Q.filter(q=>q.id in state.answers);const ok=done.filter(q=>state.answers[q.id]).length;
+  const missed=Q.filter(q=>state.answers[q.id]===false);
+  app.innerHTML=`
+    <div class="intro"><span class="label">Results</span><h2>All sections</h2></div>
+    <div class="score num">${ok}<span class="muted" style="font-size:1.5rem"> / ${Q.length}</span></div>
+    <div class="table">
+      ${ROUNDS.map(r=>{const s=roundScore(r.n);return `<div class="trow"><span>${rlabel(r.n)} · ${r.title}</span><span class="num">${s.done?s.ok+" / "+s.total:"not started"}</span></div>`}).join("")}
+    </div>
+    ${missed.length?`<div class="intro"><span class="label">Topics to review (${missed.length})</span><ul class="review">${missed.map(q=>`<li><b>${esc(q.t)}</b><small>${rlabel(q.r)}. ${esc(q.ex)}</small></li>`).join("")}</ul></div>`:(done.length===Q.length?`<p class="clear">Every question answered correctly. You're ready.</p>`:"")}
+    <div class="row">
+      ${missed.length?`<button class="btn" id="retry">Retry ${missed.length} missed</button>`:""}
+      <button class="btn secondary" id="home">Back to sections</button>
+    </div>`;
+  const rt=document.getElementById("retry");if(rt)rt.onclick=startRetry;
+  document.getElementById("home").onclick=home;
+  window.scrollTo(0,0);
+}
+
+home();
+</script>
+</body>
+</html>
