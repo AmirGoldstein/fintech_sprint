@@ -10,6 +10,7 @@
 <style>
 /* Layout: single centered column (max 640px), one question per screen, answer feedback inline under the options */
 :root{
+  color-scheme:light;
   --bg:#f6f5f8; --surface:#ffffff; --fg:#17151c; --muted:#5f5b69; --line:#e0dde6;
   --accent:#57068c; --accent-soft:#f1e9f7;
   --ok:#1d6b45; --ok-soft:#e5f2ea; --bad:#a3302a; --bad-soft:#f8e8e6;
@@ -18,16 +19,6 @@
   --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius:14px;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#131218; --surface:#1c1a23; --fg:#ecebf1; --muted:#a6a2b2; --line:#302d3a;
-  --accent:#c39bf0; --accent-soft:#2b2238;
-  --ok:#62c595; --ok-soft:#16291f; --bad:#f08a80; --bad-soft:#341c1a;
-  --s1:#c39bf0; --s2:#e8a752; --s3:#62bcc3; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#131218; --surface:#1c1a23; --fg:#ecebf1; --muted:#a6a2b2; --line:#302d3a;
-  --accent:#c39bf0; --accent-soft:#2b2238;
-  --ok:#62c595; --ok-soft:#16291f; --bad:#f08a80; --bad-soft:#341c1a;
-  --s1:#c39bf0; --s2:#e8a752; --s3:#62bcc3; color-scheme:dark}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
